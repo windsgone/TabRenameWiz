@@ -1,0 +1,17 @@
+{
+    "app_name": {
+      "message": "标签精灵"
+    },
+    "app_description": {
+      "message": "轻松修改标签名称"
+    },
+    "appName": {
+      "message": "标签精灵"
+    },
+    "newTabTitle": {
+      "message": "新标签页标题："
+    },
+    "renameTabButton": {
+      "message": "确定"
+    }
+  }

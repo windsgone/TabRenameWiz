@@ -1,0 +1,17 @@
+{
+    "app_name": {
+      "message": "Tab Wiz"
+    },
+    "app_description": {
+      "message": "Rename Tab Easily"
+    },
+    "appName": {
+      "message": "Tab Wiz"
+    },
+    "newTabTitle": {
+      "message": "New Tab Title:"
+    },
+    "renameTabButton": {
+      "message": "OK"
+    }
+  }
