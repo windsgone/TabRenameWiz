@@ -1,0 +1,62 @@
+{
+    "app_name": {
+      "message": "Tab Rename Wiz"
+    },
+    "app_description": {
+      "message": "Registerkartentitel einfach umbenennen und speichern!"
+    },
+    "appName": {
+      "message": "Tab Rename Wiz"
+    },
+    "newTabTitle": {
+      "message": "Neuer Registerkartentitel"
+    },
+    "renameTabButton": {
+      "message": "Speichern"
+    },
+    "settingsTitle": {
+      "message": "Tab Wiz - Einstellungen"
+    },
+    "savedTitles": {
+      "message": "Tab Wiz - Gespeicherte Titel"
+    },
+    "serialNumber": {
+      "message": "Nr."
+    },
+    "originalTitle": {
+      "message": "Originaltitel"
+    },
+    "newTitle": {
+      "message": "Neuer Titel"
+    },
+    "url": {
+      "message": "URL"
+    },
+    "actions": {
+      "message": "Aktionen"
+    },
+    "deleteButton": {
+      "message": "Löschen"
+    },
+    "deleteConfirm": {
+      "message": "Möchten Sie diesen Eintrag wirklich löschen?"
+    },
+    "emptyInput": {
+      "message": "Bitte geben Sie einen Registerkartennamen ein"
+    },
+    "maxLengthExceeded": {
+      "message": "Der Registerkartenname darf 200 Zeichen nicht überschreiten"
+    },
+    "renameSuccess": {
+      "message": "Erfolgreich umbenannt"
+    },
+    "renameFailed": {
+      "message": "Umbenennung fehlgeschlagen, diese Seite erlaubt möglicherweise keine Titeländerungen"
+    },
+    "protectedPageError": {
+      "message": "Browser-Systemseitentitel können nicht geändert werden"
+    },
+    "executionError": {
+      "message": "Umbenennungsvorgang fehlgeschlagen, bitte versuchen Sie es erneut"
+    }
+} 

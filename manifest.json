@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "__MSG_app_name__",
+    "description": "__MSG_app_description__",
+    "version": "1.1.2",
+    "default_locale": "en",
+    "permissions": ["tabs", "scripting", "activeTab", "storage"],
+    "host_permissions": [
+      "<all_urls>"
+    ],
+    "action": {
+      "default_icon": "icon/icon16.png",
+      "default_popup": "popup.html",
+      "default_title": "__MSG_app_name__"
+    },
+    "options_page": "settings.html",
+    "icons": {
+      "16": "icon/icon16.png",
+      "48": "icon/icon48.png",
+      "128": "icon/icon128.png"
+    },
+    "background": {
+      "service_worker": "background.js"
+    }
+  }

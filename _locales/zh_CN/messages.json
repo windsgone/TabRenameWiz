@@ -1,0 +1,62 @@
+{
+    "app_name": {
+      "message": "标签修改精灵"
+    },
+    "app_description": {
+      "message": "轻松修改并保存标签名称！"
+    },
+    "appName": {
+      "message": "标签修改精灵"
+    },
+    "newTabTitle": {
+      "message": "新标签名称"
+    },
+    "renameTabButton": {
+      "message": "保存"
+    },
+    "settingsTitle": {
+      "message": "标签精灵-设置"
+    },
+    "savedTitles": {
+      "message": "标签精灵-保存的标题"
+    },
+    "serialNumber": {
+      "message": "序号"
+    },
+    "originalTitle": {
+      "message": "原标题"
+    },
+    "newTitle": {
+      "message": "新标题"
+    },
+    "url": {
+      "message": "网址"
+    },
+    "actions": {
+      "message": "操作"
+    },
+    "deleteButton": {
+        "message": "删除"
+    },
+    "deleteConfirm": {
+        "message": "确定要删除这条记录吗？"
+    },
+    "emptyInput": {
+      "message": "请输入标签名称"
+    },
+    "maxLengthExceeded": {
+      "message": "标签名称不能超过200个字符"
+    },
+    "renameSuccess": {
+      "message": "重命名成功"
+    },
+    "renameFailed": {
+      "message": "重命名失败，该页面可能无法修改标题"
+    },
+    "protectedPageError": {
+      "message": "无法修改浏览器的系统页面标题"
+    },
+    "executionError": {
+      "message": "重命名操作执行失败，请重试"
+    }
+  }

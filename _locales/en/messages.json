@@ -1,0 +1,62 @@
+{
+    "app_name": {
+      "message": "Tab Rename Wiz"
+    },
+    "app_description": {
+      "message": "Easily rename and save tab titles!"
+    },
+    "appName": {
+      "message": "Tab Rename Wiz"
+    },
+    "newTabTitle": {
+      "message": "New Tab Title"
+    },
+    "renameTabButton": {
+      "message": "Save"
+    },
+    "settingsTitle": {
+      "message": "Tab Wiz - Settings"
+    },
+    "savedTitles": {
+      "message": "Tab Wiz - Saved Titles"
+    },
+    "serialNumber": {
+      "message": "No."
+    },
+    "originalTitle": {
+      "message": "Original Title"
+    },
+    "newTitle": {
+      "message": "New Title"
+    },
+    "url": {
+      "message": "URL"
+    },
+    "actions": {
+      "message": "Actions"
+    },
+    "deleteButton": {
+        "message": "Delete"
+    },
+    "deleteConfirm": {
+        "message": "Are you sure you want to delete this record?"
+    },
+    "emptyInput": {
+        "message": "Please enter a tab name"
+    },
+    "maxLengthExceeded": {
+        "message": "Tab name cannot exceed 200 characters"
+    },
+    "renameSuccess": {
+        "message": "Renamed successfully"
+    },
+    "renameFailed": {
+        "message": "Rename failed, this page may not allow title modification"
+    },
+    "protectedPageError": {
+      "message": "Cannot modify browser system page titles"
+    },
+    "executionError": {
+      "message": "Rename operation failed, please try again"
+    }
+  }

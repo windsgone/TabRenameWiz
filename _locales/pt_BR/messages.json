@@ -1,0 +1,62 @@
+{
+    "app_name": {
+      "message": "Tab Rename Wiz"
+    },
+    "app_description": {
+      "message": "Renomeie e salve títulos de abas facilmente!"
+    },
+    "appName": {
+      "message": "Tab Rename Wiz"
+    },
+    "newTabTitle": {
+      "message": "Novo título da aba"
+    },
+    "renameTabButton": {
+      "message": "Salvar"
+    },
+    "settingsTitle": {
+      "message": "Tab Wiz - Configurações"
+    },
+    "savedTitles": {
+      "message": "Tab Wiz - Títulos salvos"
+    },
+    "serialNumber": {
+      "message": "Nº"
+    },
+    "originalTitle": {
+      "message": "Título original"
+    },
+    "newTitle": {
+      "message": "Novo título"
+    },
+    "url": {
+      "message": "URL"
+    },
+    "actions": {
+      "message": "Ações"
+    },
+    "deleteButton": {
+      "message": "Excluir"
+    },
+    "deleteConfirm": {
+      "message": "Tem certeza que deseja excluir este registro?"
+    },
+    "emptyInput": {
+      "message": "Por favor, insira um nome para a aba"
+    },
+    "maxLengthExceeded": {
+      "message": "O nome da aba não pode exceder 200 caracteres"
+    },
+    "renameSuccess": {
+      "message": "Renomeado com sucesso"
+    },
+    "renameFailed": {
+      "message": "Falha ao renomear, esta página pode não permitir modificação do título"
+    },
+    "protectedPageError": {
+      "message": "Não é possível modificar títulos de páginas do sistema do navegador"
+    },
+    "executionError": {
+      "message": "A operação de renomeação falhou, por favor tente novamente"
+    }
+} 

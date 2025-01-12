@@ -1,0 +1,62 @@
+{
+    "app_name": {
+      "message": "Tab Rename Wiz"
+    },
+    "app_description": {
+      "message": "タブのタイトルを簡単に変更して保存！"
+    },
+    "appName": {
+      "message": "Tab Rename Wiz"
+    },
+    "newTabTitle": {
+      "message": "新しいタブ名"
+    },
+    "renameTabButton": {
+      "message": "保存"
+    },
+    "settingsTitle": {
+      "message": "Tab Wiz - 設定"
+    },
+    "savedTitles": {
+      "message": "Tab Wiz - 保存されたタイトル"
+    },
+    "serialNumber": {
+      "message": "番号"
+    },
+    "originalTitle": {
+      "message": "元のタイトル"
+    },
+    "newTitle": {
+      "message": "新しいタイトル"
+    },
+    "url": {
+      "message": "URL"
+    },
+    "actions": {
+      "message": "操作"
+    },
+    "deleteButton": {
+      "message": "削除"
+    },
+    "deleteConfirm": {
+      "message": "このレコードを削除してもよろしいですか？"
+    },
+    "emptyInput": {
+      "message": "タブ名を入力してください"
+    },
+    "maxLengthExceeded": {
+      "message": "タブ名は200文字を超えることはできません"
+    },
+    "renameSuccess": {
+      "message": "名前の変更に成功しました"
+    },
+    "renameFailed": {
+      "message": "名前の変更に失敗しました。このページではタイトルの変更が許可されていない可能性があります"
+    },
+    "protectedPageError": {
+      "message": "ブラウザのシステムページのタイトルは変更できません"
+    },
+    "executionError": {
+      "message": "名前の変更操作に失敗しました。もう一度お試しください"
+    }
+} 

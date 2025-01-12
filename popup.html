@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Renamer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1 data-i18n="appName"></h1>
+        <span id="settingsIcon"><img src="icon/setting.png" alt="settings"/></span>
+    </header>
+    
+    <main>
+        <form id="renameForm">
+            <div class="form-part-one">
+                <label data-i18n="newTabTitle"></label>
+                <div class="input-container">
+                    <input type="text" id="tabTitle" name="tabTitle" autocomplete="off">
+                    <span id="clearBtn"><img src="icon/clear.png" alt="clear"/></span>
+                </div>
+            </div>
+            <div class="form-part-two">
+                <button type="submit" data-i18n="renameTabButton"></button>
+                <div id="message" class="message"></div>
+            </div>
+        </form>
+    </main>
+    <script src="popup.js"></script>
+</body>
+</html>

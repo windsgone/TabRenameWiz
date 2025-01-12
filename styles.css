@@ -1,0 +1,135 @@
+body {
+    width: 300px;
+    margin: 0;
+}
+
+header {
+    box-sizing: border-box;
+    height: 40px;
+    background-color: #D2EDFF;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+h1 {
+    font-size: 16px;
+    color: #3498DB;
+    font-weight: 500;
+    line-height: 40px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.input-container {
+    position: relative;
+    display: inline-block;
+    width: 260px; /* 将原本的宽度260px调整为230px */
+    box-sizing: border-box;
+}
+ 
+#tabTitle {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 35px; /* 添加此行, 为清楚按钮留出空间 */
+}
+ 
+ #clearBtn {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+ }
+ 
+#clearBtn img {
+    height: 20px;
+    width: 20px;
+}
+
+main {
+    padding: 20px 20px 10px 20px;
+}
+
+.form-part-one {
+    position: relative;
+}
+
+.form-part-one,
+.form-part-two {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+label {
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+input[type="text"] {
+    padding: 5px 10px;
+    font-size: 14px;
+    height: 40px;
+    fill: #FFF;
+    stroke-width: 1px;
+    stroke: #DDD;
+    border-radius: 5px;
+    border: 1px solid #DDD;
+}
+
+button[type="submit"] {
+    padding: 10px;
+    background-color: #3498DB;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    border-radius: 5px;
+}
+
+button[type="submit"]:hover {
+    background-color: #3082B9;
+}
+
+#settingsIcon {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+#settingsIcon img {
+    width: 20px;
+    height: 20px;
+}
+
+#settingsIcon:hover {
+    opacity: 0.8;
+}
+
+.message {
+    font-size: 12px;
+    min-height: 18px;
+    text-align: left;
+    margin-top: 5px;
+}
+
+.message.error {
+    color: #ff4444;
+}
+
+.message.success {
+    color: #4CAF50;
+}
+
+.form-part-two {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+}

@@ -1,0 +1,62 @@
+{
+    "app_name": {
+      "message": "Tab Rename Wiz"
+    },
+    "app_description": {
+      "message": "Renommez et sauvegardez facilement les titres des onglets !"
+    },
+    "appName": {
+      "message": "Tab Rename Wiz"
+    },
+    "newTabTitle": {
+      "message": "Nouveau titre d'onglet"
+    },
+    "renameTabButton": {
+      "message": "Enregistrer"
+    },
+    "settingsTitle": {
+      "message": "Tab Wiz - Paramètres"
+    },
+    "savedTitles": {
+      "message": "Tab Wiz - Titres enregistrés"
+    },
+    "serialNumber": {
+      "message": "N°"
+    },
+    "originalTitle": {
+      "message": "Titre original"
+    },
+    "newTitle": {
+      "message": "Nouveau titre"
+    },
+    "url": {
+      "message": "URL"
+    },
+    "actions": {
+      "message": "Actions"
+    },
+    "deleteButton": {
+      "message": "Supprimer"
+    },
+    "deleteConfirm": {
+      "message": "Êtes-vous sûr de vouloir supprimer cet enregistrement ?"
+    },
+    "emptyInput": {
+      "message": "Veuillez saisir un nom d'onglet"
+    },
+    "maxLengthExceeded": {
+      "message": "Le nom de l'onglet ne peut pas dépasser 200 caractères"
+    },
+    "renameSuccess": {
+      "message": "Renommage réussi"
+    },
+    "renameFailed": {
+      "message": "Échec du renommage, cette page peut ne pas autoriser la modification du titre"
+    },
+    "protectedPageError": {
+      "message": "Impossible de modifier les titres des pages système du navigateur"
+    },
+    "executionError": {
+      "message": "L'opération de renommage a échoué, veuillez réessayer"
+    }
+} 

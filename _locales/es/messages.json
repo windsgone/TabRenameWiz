@@ -1,0 +1,62 @@
+{
+    "app_name": {
+      "message": "Tab Rename Wiz"
+    },
+    "app_description": {
+      "message": "¡Renombra y guarda títulos de pestañas fácilmente!"
+    },
+    "appName": {
+      "message": "Tab Rename Wiz"
+    },
+    "newTabTitle": {
+      "message": "Nuevo título de pestaña"
+    },
+    "renameTabButton": {
+      "message": "Guardar"
+    },
+    "settingsTitle": {
+      "message": "Tab Wiz - Configuración"
+    },
+    "savedTitles": {
+      "message": "Tab Wiz - Títulos guardados"
+    },
+    "serialNumber": {
+      "message": "No."
+    },
+    "originalTitle": {
+      "message": "Título original"
+    },
+    "newTitle": {
+      "message": "Nuevo título"
+    },
+    "url": {
+      "message": "URL"
+    },
+    "actions": {
+      "message": "Acciones"
+    },
+    "deleteButton": {
+      "message": "Eliminar"
+    },
+    "deleteConfirm": {
+      "message": "¿Está seguro de que desea eliminar este registro?"
+    },
+    "emptyInput": {
+      "message": "Por favor, ingrese un nombre de pestaña"
+    },
+    "maxLengthExceeded": {
+      "message": "El nombre de la pestaña no puede exceder los 200 caracteres"
+    },
+    "renameSuccess": {
+      "message": "Renombrado exitosamente"
+    },
+    "renameFailed": {
+      "message": "Error al renombrar, es posible que esta página no permita modificar el título"
+    },
+    "protectedPageError": {
+      "message": "No se pueden modificar los títulos de las páginas del sistema del navegador"
+    },
+    "executionError": {
+      "message": "La operación de renombrado falló, por favor intente nuevamente"
+    }
+} 
