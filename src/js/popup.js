@@ -80,7 +80,7 @@ function showMessage(messageKey, isError = false) {
 
   document.getElementById('settingsIcon').addEventListener('click', function() {
     chrome.tabs.create({
-        url: 'settings.html'
+        url: 'html/settings.html'
     });
   });
 });

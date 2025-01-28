@@ -1,0 +1,10 @@
+# 忽略打包文件
+*.zip
+releases/
+
+# 开发环境
+.DS_Store
+Thumbs.db
+
+# 忽略文件
+.cursorrules

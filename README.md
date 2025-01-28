@@ -1,2 +1,6 @@
-# tabwiz
-Used to modify the browser tab name
+# Tab Rename Wiz
+
+## features
+- Rename tab
+- Save tab name
+- Restore tab name
