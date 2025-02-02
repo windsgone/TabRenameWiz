@@ -3,7 +3,7 @@
       "message": "Tab Rename Wiz"
     },
     "app_description": {
-      "message": "Easily rename and save tab titles!"
+      "message": "Easily rename and save tab titles and icons!"
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -15,10 +15,10 @@
       "message": "Save"
     },
     "settingsTitle": {
-      "message": "Tab Wiz - Settings"
+      "message": "Tab Rename Wiz - Settings"
     },
     "savedTitles": {
-      "message": "Tab Wiz - Saved Titles"
+      "message": "Tab Rename Wiz - Saved Titles"
     },
     "serialNumber": {
       "message": "No."
@@ -58,5 +58,35 @@
     },
     "executionError": {
       "message": "Rename operation failed, please try again"
+    },
+    "emoji_category_smileys": {
+        "message": "Smileys & People"
+    },
+    "emoji_category_animals": {
+        "message": "Animals & Nature"
+    },
+    "emoji_category_food": {
+        "message": "Food & Drink"
+    },
+    "emoji_category_activity": {
+        "message": "Activity"
+    },
+    "emoji_category_travel": {
+        "message": "Travel & Places"
+    },
+    "emoji_category_objects": {
+        "message": "Objects"
+    },
+    "emoji_category_symbols": {
+        "message": "Symbols"
+    },
+    "emoji_category_flags": {
+        "message": "Flags"
+    },
+    "originalIcon": {
+        "message": "Original Icon"
+    },
+    "newFavicon": {
+        "message": "New Icon"
     }
   }

@@ -3,7 +3,7 @@
       "message": "Tab Rename Wiz"
     },
     "app_description": {
-      "message": "タブのタイトルを簡単に変更して保存！"
+      "message": "タブのタイトルを簡単に変更して保存！そして新しいアイコンを選択！"
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -15,10 +15,10 @@
       "message": "保存"
     },
     "settingsTitle": {
-      "message": "Tab Wiz - 設定"
+      "message": "Tab Rename Wiz - 設定"
     },
     "savedTitles": {
-      "message": "Tab Wiz - 保存されたタイトル"
+      "message": "Tab Rename Wiz - 保存されたタイトル"
     },
     "serialNumber": {
       "message": "番号"
@@ -58,5 +58,35 @@
     },
     "executionError": {
       "message": "名前の変更操作に失敗しました。もう一度お試しください"
+    },
+    "emoji_category_smileys": {
+        "message": "顔文字と人物"
+    },
+    "emoji_category_animals": {
+        "message": "動物と自然"
+    },
+    "emoji_category_food": {
+        "message": "食べ物と飲み物"
+    },
+    "emoji_category_activity": {
+        "message": "アクティビティ"
+    },
+    "emoji_category_travel": {
+        "message": "旅行と場所"
+    },
+    "emoji_category_objects": {
+        "message": "物"
+    },
+    "emoji_category_symbols": {
+        "message": "記号"
+    },
+    "emoji_category_flags": {
+        "message": "旗"
+    },
+    "originalIcon": {
+        "message": "元のアイコン"
+    },
+    "newFavicon": {
+        "message": "新しいアイコン"
     }
 } 

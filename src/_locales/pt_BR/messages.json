@@ -3,7 +3,7 @@
       "message": "Tab Rename Wiz"
     },
     "app_description": {
-      "message": "Renomeie e salve títulos de abas facilmente!"
+      "message": "Renomeie e salve títulos de abas facilmente! E selecione um novo ícone!"
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -15,10 +15,10 @@
       "message": "Salvar"
     },
     "settingsTitle": {
-      "message": "Tab Wiz - Configurações"
+      "message": "Tab Rename Wiz - Configurações"
     },
     "savedTitles": {
-      "message": "Tab Wiz - Títulos salvos"
+      "message": "Tab Rename Wiz - Títulos salvos"
     },
     "serialNumber": {
       "message": "Nº"
@@ -58,5 +58,35 @@
     },
     "executionError": {
       "message": "A operação de renomeação falhou, por favor tente novamente"
+    },
+    "originalIcon": {
+        "message": "Ícone original"
+    },
+    "newFavicon": {
+        "message": "Novo ícone"
+    },
+    "emoji_category_smileys": {
+        "message": "Emojis e pessoas"
+    },
+    "emoji_category_animals": {
+        "message": "Animais e natureza"
+    },
+    "emoji_category_food": {
+        "message": "Comida e bebida"
+    },
+    "emoji_category_activity": {
+        "message": "Atividades"
+    },
+    "emoji_category_travel": {
+        "message": "Viagens e lugares"
+    },
+    "emoji_category_objects": {
+        "message": "Objetos"
+    },
+    "emoji_category_symbols": {
+        "message": "Símbolos"
+    },
+    "emoji_category_flags": {
+        "message": "Bandeiras"
     }
 } 

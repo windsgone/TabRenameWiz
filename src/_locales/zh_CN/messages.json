@@ -3,7 +3,7 @@
       "message": "标签修改精灵"
     },
     "app_description": {
-      "message": "轻松修改并保存标签名称！"
+      "message": "轻松修改并保存标签名称和图标！"
     },
     "appName": {
       "message": "标签修改精灵"
@@ -15,10 +15,10 @@
       "message": "保存"
     },
     "settingsTitle": {
-      "message": "标签精灵-设置"
+      "message": "标签修改精灵-设置"
     },
     "savedTitles": {
-      "message": "标签精灵-保存的标题"
+      "message": "标签修改精灵-保存的标题"
     },
     "serialNumber": {
       "message": "序号"
@@ -58,5 +58,35 @@
     },
     "executionError": {
       "message": "重命名操作执行失败，请重试"
+    },
+    "originalIcon": {
+        "message": "原图标"
+    },
+    "newFavicon": {
+        "message": "新图标"
+    },
+    "emoji_category_smileys": {
+        "message": "表情与人物"
+    },
+    "emoji_category_animals": {
+        "message": "动物与自然"
+    },
+    "emoji_category_food": {
+        "message": "食物与饮品"
+    },
+    "emoji_category_activity": {
+        "message": "活动"
+    },
+    "emoji_category_travel": {
+        "message": "旅行与地点"
+    },
+    "emoji_category_objects": {
+        "message": "物品"
+    },
+    "emoji_category_symbols": {
+        "message": "符号"
+    },
+    "emoji_category_flags": {
+        "message": "旗帜"
     }
   }

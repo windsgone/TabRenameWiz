@@ -3,7 +3,7 @@
       "message": "Tab Rename Wiz"
     },
     "app_description": {
-      "message": "Registerkartentitel einfach umbenennen und speichern!"
+      "message": "Registerkartentitel einfach umbenennen und speichern! Und neues Symbol auswählen!"
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -15,10 +15,10 @@
       "message": "Speichern"
     },
     "settingsTitle": {
-      "message": "Tab Wiz - Einstellungen"
+      "message": "Tab Rename Wiz - Einstellungen"
     },
     "savedTitles": {
-      "message": "Tab Wiz - Gespeicherte Titel"
+      "message": "Tab Rename Wiz - Gespeicherte Titel"
     },
     "serialNumber": {
       "message": "Nr."
@@ -58,5 +58,35 @@
     },
     "executionError": {
       "message": "Umbenennungsvorgang fehlgeschlagen, bitte versuchen Sie es erneut"
+    },
+    "originalIcon": {
+        "message": "Original-Symbol"
+    },
+    "newFavicon": {
+        "message": "Neues Symbol"
+    },
+    "emoji_category_smileys": {
+        "message": "Smileys und Menschen"
+    },
+    "emoji_category_animals": {
+        "message": "Tiere und Natur"
+    },
+    "emoji_category_food": {
+        "message": "Essen und Trinken"
+    },
+    "emoji_category_activity": {
+        "message": "Aktivitäten"
+    },
+    "emoji_category_travel": {
+        "message": "Reisen und Orte"
+    },
+    "emoji_category_objects": {
+        "message": "Objekte"
+    },
+    "emoji_category_symbols": {
+        "message": "Symbole"
+    },
+    "emoji_category_flags": {
+        "message": "Flaggen"
     }
 } 

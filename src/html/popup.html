@@ -15,18 +15,38 @@
     <main>
         <form id="renameForm">
             <div class="form-part-one">
-                <label data-i18n="newTabTitle"></label>
                 <div class="input-container">
+                    <div id="faviconBox">
+                        <img src="" alt="favicon" id="currentFavicon">
+                    </div>
                     <input type="text" id="tabTitle" name="tabTitle" autocomplete="off">
                     <span id="clearBtn"><img src="../icon/clear.png" alt="clear"/></span>
                 </div>
             </div>
+            
+            <div id="emojiPicker" class="emoji-picker">
+                <div class="emoji-tabs">
+                    <div class="tab active" data-category="smileys">😀</div>
+                    <div class="tab" data-category="animals">🐶</div>
+                    <div class="tab" data-category="food">🍎</div>
+                    <div class="tab" data-category="activity">⚽</div>
+                    <div class="tab" data-category="travel">🚗</div>
+                    <div class="tab" data-category="objects">💡</div>
+                    <div class="tab" data-category="symbols">❤️</div>
+                    <div class="tab" data-category="flags">🏁</div>
+                </div>
+                <div class="emoji-content">
+                    <!-- 表情内容将通过 JavaScript 动态添加 -->
+                </div>
+            </div>
+            
             <div class="form-part-two">
                 <button type="submit" data-i18n="renameTabButton"></button>
                 <div id="message" class="message"></div>
             </div>
         </form>
     </main>
+
     <script src="../js/popup.js"></script>
 </body>
 </html>
