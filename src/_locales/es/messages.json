@@ -3,7 +3,7 @@
       "message": "Tab Rename Wiz"
     },
     "app_description": {
-      "message": "¡Renombra y guarda títulos de pestañas fácilmente!"
+      "message": "¡Renombra y guarda títulos de pestañas fácilmente! Y selecciona un nuevo icono!"
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -15,10 +15,10 @@
       "message": "Guardar"
     },
     "settingsTitle": {
-      "message": "Tab Wiz - Configuración"
+      "message": "Tab Rename Wiz - Configuración"
     },
     "savedTitles": {
-      "message": "Tab Wiz - Títulos guardados"
+      "message": "Tab Rename Wiz - Títulos guardados"
     },
     "serialNumber": {
       "message": "No."
@@ -58,5 +58,35 @@
     },
     "executionError": {
       "message": "La operación de renombrado falló, por favor intente nuevamente"
+    },
+    "originalIcon": {
+        "message": "Icono original"
+    },
+    "newFavicon": {
+        "message": "Nuevo icono"
+    },
+    "emoji_category_smileys": {
+        "message": "Emoticonos y personas"
+    },
+    "emoji_category_animals": {
+        "message": "Animales y naturaleza"
+    },
+    "emoji_category_food": {
+        "message": "Comida y bebida"
+    },
+    "emoji_category_activity": {
+        "message": "Actividades"
+    },
+    "emoji_category_travel": {
+        "message": "Viajes y lugares"
+    },
+    "emoji_category_objects": {
+        "message": "Objetos"
+    },
+    "emoji_category_symbols": {
+        "message": "Símbolos"
+    },
+    "emoji_category_flags": {
+        "message": "Banderas"
     }
 } 

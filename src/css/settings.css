@@ -45,10 +45,12 @@ th {
 }
 
 th:nth-child(1), td:nth-child(1) { width: 5%; }
-th:nth-child(2), td:nth-child(2) { width: 20%; }
-th:nth-child(3), td:nth-child(3) { width: 20%; }
-th:nth-child(4), td:nth-child(4) { width: 45%; }
+th:nth-child(2), td:nth-child(2) { width: 15%; }
+th:nth-child(3), td:nth-child(3) { width: 15%; }
+th:nth-child(4), td:nth-child(4) { width: 10%; }
 th:nth-child(5), td:nth-child(5) { width: 10%; }
+th:nth-child(6), td:nth-child(6) { width: 35%; }
+th:nth-child(7), td:nth-child(7) { width: 10%; }
 
 button {
     padding: 5px 10px;
@@ -61,4 +63,29 @@ button {
 
 button:hover {
     background-color: #cc0000;
+}
+
+.favicon-cell {
+    width: 50px;
+    text-align: center;
+}
+
+.favicon-display {
+    width: 24px;
+    height: 24px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.favicon-display img {
+    max-width: 20px;
+    max-height: 20px;
+    object-fit: contain;
+}
+
+.emoji-favicon {
+    font-size: 16px;
+    line-height: 1;
 } 

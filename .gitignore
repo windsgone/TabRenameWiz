@@ -8,3 +8,6 @@ Thumbs.db
 
 # 忽略文件
 .cursorrules
+.cursor/
+.cursorignore
+.gitignore

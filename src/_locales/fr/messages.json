@@ -3,7 +3,7 @@
       "message": "Tab Rename Wiz"
     },
     "app_description": {
-      "message": "Renommez et sauvegardez facilement les titres des onglets !"
+      "message": "Renommez et sauvegardez facilement les titres des onglets ! Et sélectionnez un nouvel icône !"
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -15,10 +15,10 @@
       "message": "Enregistrer"
     },
     "settingsTitle": {
-      "message": "Tab Wiz - Paramètres"
+      "message": "Tab Rename Wiz - Paramètres"
     },
     "savedTitles": {
-      "message": "Tab Wiz - Titres enregistrés"
+      "message": "Tab Rename Wiz - Titres enregistrés"
     },
     "serialNumber": {
       "message": "N°"
@@ -58,5 +58,35 @@
     },
     "executionError": {
       "message": "L'opération de renommage a échoué, veuillez réessayer"
+    },
+    "originalIcon": {
+        "message": "Icône d'origine"
+    },
+    "newFavicon": {
+        "message": "Nouvelle icône"
+    },
+    "emoji_category_smileys": {
+        "message": "Émoticônes et personnes"
+    },
+    "emoji_category_animals": {
+        "message": "Animaux et nature"
+    },
+    "emoji_category_food": {
+        "message": "Nourriture et boissons"
+    },
+    "emoji_category_activity": {
+        "message": "Activités"
+    },
+    "emoji_category_travel": {
+        "message": "Voyages et lieux"
+    },
+    "emoji_category_objects": {
+        "message": "Objets"
+    },
+    "emoji_category_symbols": {
+        "message": "Symboles"
+    },
+    "emoji_category_flags": {
+        "message": "Drapeaux"
     }
 } 
