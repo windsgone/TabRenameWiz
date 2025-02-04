@@ -88,5 +88,8 @@
     },
     "newFavicon": {
         "message": "新しいアイコン"
+    },
+    "noEmojiFound": {
+        "message": "顔文字が見つかりません"
     }
 } 

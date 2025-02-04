@@ -88,5 +88,8 @@
     },
     "emoji_category_flags": {
         "message": "Drapeaux"
+    },
+    "noEmojiFound": {
+        "message": "Aucun emoji trouvé"
     }
 } 
