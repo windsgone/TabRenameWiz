@@ -88,5 +88,8 @@
     },
     "emoji_category_flags": {
         "message": "旗帜"
+    },
+    "noEmojiFound": {
+        "message": "未找到表情"
     }
   }

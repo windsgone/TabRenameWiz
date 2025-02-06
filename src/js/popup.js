@@ -1,6 +1,28 @@
+import emojiData from './data/emojiData.js';
+import { searchEmojis, buildSearchResultsHTML, isInSearchMode, setSearchMode, clearSearch } from './utils/emojiSearch.js';
+
 let scrollListenerEnabled = true;
 let scrollTimeout;
 let isClickScroll = false;
+
+// 预先对表情进行分类缓存
+const EMOJI_CATEGORIES = {
+  smileys: [],
+  animals: [],
+  food: [],
+  activity: [],
+  travel: [],
+  objects: [],
+  symbols: [],
+  flags: []
+};
+
+// 初始化时进行一次性分类
+Object.entries(emojiData).forEach(([emoji, data]) => {
+  if (EMOJI_CATEGORIES[data.category]) {
+    EMOJI_CATEGORIES[data.category].push(emoji);
+  }
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   const renameForm = document.getElementById("renameForm");
@@ -81,10 +103,16 @@ document.addEventListener("DOMContentLoaded", function () {
                         canvas.width = 32;
                         canvas.height = 32;
                         const ctx = canvas.getContext('2d');
-                        ctx.font = '32px serif';
+                        
+                        // 检测操作系统
+                        const isWindows = navigator.userAgent.toLowerCase().includes('windows');
+                        const yPosition = isWindows ? 18 : 20;
+                        
+                        ctx.font = '32px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(emojiChar, 16, 20);
+                        
+                        ctx.fillText(emojiChar, 16, yPosition);
                         
                         const link = document.createElement('link');
                         link.rel = 'icon';
@@ -194,99 +222,104 @@ function initFaviconFeature() {
   const faviconBox = document.getElementById('faviconBox');
   const emojiPicker = document.getElementById('emojiPicker');
   const currentFavicon = document.getElementById('currentFavicon');
-  const tabs = document.querySelectorAll('.emoji-tabs .tab');
   const emojiContent = document.querySelector('.emoji-content');
   
   // 确保元素存在
-  if (!faviconBox || !emojiPicker || !currentFavicon) {
-    console.error('Required elements not found:', {
-      faviconBox: !!faviconBox,
-      emojiPicker: !!emojiPicker,
-      currentFavicon: !!currentFavicon
-    });
+  if (!faviconBox || !emojiPicker || !currentFavicon || !emojiContent) {
+    console.error('Required elements not found');
     return;
   }
-  
+
   // 设置初始状态
   emojiPicker.style.display = 'none';
-  
+
   // 修改点击事件处理
   faviconBox.addEventListener('click', function(e) {
     e.stopPropagation();
     if (emojiPicker) {
-        const isHidden = window.getComputedStyle(emojiPicker).display === 'none';
-        emojiPicker.style.display = isHidden ? 'block' : 'none';
-        // 添加或移除高亮类
-        faviconBox.classList.toggle('active', isHidden);
+      const isHidden = window.getComputedStyle(emojiPicker).display === 'none';
+      emojiPicker.style.display = isHidden ? 'block' : 'none';
+      // 添加或移除高亮类
+      faviconBox.classList.toggle('active', isHidden);
+      
+      // 仅在首次显示时初始化表情内容
+      if (isHidden && emojiContent.children.length === 0) {
+        showEmojiCategory('smileys');
+      }
     }
   });
 
-  // 获取当前标签页的 favicon
+  // 初始化时获取当前标签页的 favicon
   chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
     const activeTab = tabs[0];
-    // 检查是否有自定义 favicon
+    // 检查是否有自定义 emoji favicon
     chrome.storage.local.get(['faviconHistory'], function(result) {
-      const history = result.faviconHistory || {};
-      if (history[activeTab.url] && history[activeTab.url].emoji) {
-        // 如果是 emoji，使用 div 显示
+      const faviconHistory = result.faviconHistory || {};
+      if (faviconHistory[activeTab.url]) {
+        // 如果有自定义 emoji，显示它
         currentFavicon.style.display = 'none';
-        faviconBox.innerHTML = `<div class="emoji-favicon">${history[activeTab.url].emoji}</div>`;
+        const emojiFavicon = document.createElement('div');
+        emojiFavicon.className = 'emoji-favicon';
+        emojiFavicon.textContent = faviconHistory[activeTab.url].emoji;
+        faviconBox.appendChild(emojiFavicon);
       } else {
-        // 如果是普通图片，使用 img 显示
+        // 否则显示原始 favicon
         currentFavicon.style.display = 'block';
         currentFavicon.src = activeTab.favIconUrl || '';
-        faviconBox.querySelector('.emoji-favicon')?.remove();
       }
     });
   });
 
+  // 在 initFaviconFeature 函数中添加
+  const searchInput = document.querySelector('.search-input');
+  const searchClear = document.querySelector('.search-clear');
 
-  // 初始化表情选择器
-  function initEmojiPicker() {
-    // 默认显示第一个分类
-    showEmojiCategory('smileys');
+  // 处理搜索输入
+  let searchTimer;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const keyword = e.target.value;
     
-    // 修改tab点击事件处理
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const categoryName = tab.dataset.category;
-        // 设置标志
-        isClickScroll = true;
-        // 立即更新 UI
-        updateActiveTab(categoryName);
-        
-        const categoryElement = emojiContent.querySelector(`[data-category="${categoryName}"]`);
-        if (categoryElement) {
-          categoryElement.scrollIntoView({ behavior: 'smooth' });
-          
-          // 等待滚动动画完成后重置状态
-          clearTimeout(scrollTimeout);
-          scrollTimeout = setTimeout(() => {
-            isClickScroll = false;
-          }, 500);
-        }
-      });
-    });
-  }
+    // 控制清除按钮的显示/隐藏
+    searchClear.style.display = keyword ? 'flex' : 'none';
+    
+    searchTimer = setTimeout(() => {
+      if (!keyword.trim()) {
+        clearSearch(searchInput, emojiContent);
+        showEmojiCategory('smileys');
+        return;
+      }
+
+      setSearchMode(true);
+      const { results, isEmpty } = searchEmojis(keyword);
+      
+      // 清空现有内容
+      emojiContent.innerHTML = '';
+      // 显示搜索结果
+      emojiContent.appendChild(buildSearchResultsHTML(results));
+    }, 300);
+  });
+
+  // 添加清除按钮点击事件
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.style.display = 'none';
+    clearSearch(searchInput, emojiContent);
+    showEmojiCategory('smileys');
+  });
 
   function showEmojiCategory(categoryName) {
-    const emojiContent = document.querySelector('.emoji-content');
-    const categories = {
-        'smileys': ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🫣', '🤗', '🫡', '🤔', '🫢', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🫨', '🫠', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '😵‍💫', '🫥', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'],
-        'animals': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🪱', '🐛', '🦋', '🐌', '🐞', '🐜', '🪰', '🪲', '🪳', '🦟', '🦗', '🕷', '🕸', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🪸', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🦣', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🦬', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍🦺', '🐈', '🐈‍⬛', '🪶', '🐓', '🦃', '🦤', '🦚', '🦜', '🦢', '🦩', '🕊', '🐇', '🦝', '🦨', '🦡', '🦫', '🦦', '🦥', '🐁', '🐀', '🐿', '🦔'],
-        'food': ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶', '🫑', '🌽', '🥕', '🫒', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '🌭', '🍔', '🍟', '🍕', '🫓', '🥪', '🥙', '🧆', '🌮', '🌯', '🫔', '🥗', '🥘', '🫕', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🦪', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯', '🥛', '🍼', '🫖', '☕️', '🍵', '🧃', '🥤', '🧋', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊', '🥄', '🍴', '🍽', '🥢', '🥡'],
-        'activity': ['⚽️', '🏀', '🏈', '⚾️', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🪃', '🥅', '⛳️', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛼', '🛷', '⛸', '🥌', '🎿', '⛷', '🏂', '🪂', '🏋️‍♀️', '🏋️', '🏋️‍♂️', '🤼‍♀️', '🤼', '🤼‍♂️', '🤸‍♀️', '🤸', '🤸‍♂️', '⛹️‍♀️', '⛹️', '⛹️‍♂️', '🤺', '🤾‍♀️', '🤾', '🤾‍♂️', '🏌️‍♀️', '🏌️', '🏌️‍♂️', '🏇', '🧘‍♀️', '🧘', '🧘‍♂️', '🏄‍♀️', '🏄', '🏄‍♂️', '🏊‍♀️', '🏊', '🏊‍♂️', '🤽‍♀️', '🤽', '🤽‍♂️', '🚣‍♀️', '🚣', '🚣‍♂️', '🧗‍♀️', '🧗', '🧗‍♂️', '🚵‍♀️', '🚵', '🚵‍♂️', '🚴‍♀️', '🚴', '🚴‍♂️', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖', '🏵', '🎗', '🎫', '🎟', '🎪', '🤹‍♀️', '🤹', '🤹‍♂️', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🪘', '🎷', '🎺', '🪗', '🎸', '🪕', '🎻', '🎲', '♟', '🎯', '🎳', '🎮', '🎰', '🧩'],
-        'travel': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚', '🚛', '🚜', '🦯', '🦽', '🦼', '🛴', '🚲', '🛵', '🏍', '🛺', '🚨', '🚔', '🚍', '🚘', '🚖', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚝', '🚄', '🚅', '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '🛩', '💺', '🛰', '🚀', '🛸', '🚁', '🛶', '⛵️', '🚤', '🛥', '🛳', '⛴', '🚢', '⚓️', '🪝', '⛽️', '🚧', '🚦', '🚥', '🚏', '🗺', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟', '🎡', '🎢', '🎠', '⛲️', '⛱', '🏖', '🏝', '🏜', '🌋', '⛰', '🏔', '🗻', '🏕', '⛺️', '🏠', '🏡', '🏘', '🏚', '🏗', '🏭', '🏢', '🏬', '🏣', '🏤', '🏥', '🏦', '🏨', '🏪', '🏩', '💒', '🏛', '⛪️', '🕌', '🕍', '🛕', '🕋', '⛩', '🛤', '🛣', '🗾', '🎑', '🏞', '🌅', '🌄', '🌠', '🎇', '🎆', '🌇', '🌆', '🏙', '🌃', '🌌', '🌉', '🌁'],
-        'objects': ['⌚️', '📱', '📲', '💻', '⌨️', '🖥', '🖨', '🖱', '🖲', '🕹', '🗜', '💽', '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '📽', '🎞', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙', '🎚', '🎛', '🧭', '⏱', '⏲', '⏰', '🕰', '⌛️', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯', '🪔', '🧯', '🛢', '💸', '💵', '💴', '💶', '💷', '🪙', '💰', '💳', '💎', '⚖️', '🪜', '🧰', '🪛', '🔧', '🔨', '⚒', '🛠', '⛏', '🪚', '🔩', '⚙️', '🪤', '🧱', '⛓', '🧲', '🔫', '💣', '🧨', '🪓', '🔪', '🗡', '⚔️', '🛡', '🚬', '⚰️', '🪦', '⚱️', '🏺', '🔮', '📿', '🧿', '💈', '⚗️', '🔭', '🔬', '🕳', '🩹', '🩺', '💊', '💉', '🩸', '🧬', '🦠', '🧫', '🧪', '🌡', '🧹', '🪠', '🧺', '🧻', '🚽', '🚰', '🚿', '🛁', '🛀', '🧼', '🪥', '🪒', '🧽', '🪣', '🧴', '🛎', '🔑', '🗝', '🚪', '🪑', '🛋', '🛏', '🛌', '🧸', '🪆', '🖼', '🪞', '🪟', '🛍', '🛒', '🎁', '🎈', '🎏', '🎀', '🪄', '🪅', '🎊', '🎉', '🎎', '🏮', '🎐', '🧧', '✉️', '📩', '📨', '📧', '💌', '📥', '📤', '📦', '🏷', '🪧', '📪', '📫', '📬', '📭', '📮', '📯', '📜', '📃', '📄', '📑', '🧾', '📊', '📈', '📉', '🗒', '🗓', '📆', '📅', '🗑', '📇', '🗃', '🗳', '🗄', '📋', '📁', '📂', '🗂', '🗞', '📰', '📓', '📔', '📒', '📕', '📗', '📘', '📙', '📚', '📖', '🔖', '🧷', '🔗', '📎', '🖇', '📐', '📏', '🧮', '📌', '📍', '✂️', '🖊', '🖋', '✒️', '🖌', '🖍', '📝', '✏️', '🔍', '🔎', '🔏', '🔐', '🔒', '🔓'],
-        'symbols': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '❤️‍🔥', '❤️‍🩹', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚️', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕️', '🛑', '⛔️', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗️', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️', '✅', '🈯️', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿️', '🅿️', '🛗', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '⚧️', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', 'ℹ️', '🔤', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🔢', '#️⃣', '*️⃣', '⏏️', '▶️', '⏸️', '⏯️', '⏹️', '⏺️', '⏭️', '⏮️', '⏩', '⏪', '⏫', '⏬', '◀️', '🔼', '🔽', '➡️', '⬅️', '⬆️', '⬇️', '↗️', '↘️', '↙️', '↖️', '↕️', '↔️', '↪️', '↩️', '⤴️', '⤵️', '🔀', '🔁', '🔂', '🔄', '🔃', '🎵', '🎶', '➕', '➖', '➗', '✖️', '♾️', '💲', '💱', '™️', '©️', '®️', '〰️', '➰', '➿', '🔚', '🔙', '🔛', '🔝', '🔜', '✔️', '☑️', '🔘', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️', '🟤', '🔺', '🔻', '🔸', '🔹', '🔶', '🔷', '🔳', '🔲', '▪️', '▫️', '◾️', '◽️', '◼️', '◻️', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛️', '⬜️', '🟫', '🔈', '🔇', '🔉', '🔊', '🔔', '🔕', '📣', '📢', '💬', '💭', '🗯️', '♠️', '♣️', '♥️', '♦️', '🃏', '🎴', '🀄️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕞', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧'],
-        'flags': ['🏳️', '🏴', '🏁', '🚩', '🏳️‍🌈', '🏳️‍⚧️', '🏴‍☠️', '🇦🇨', '🇦🇩', '🇦🇪', '🇦🇫', '🇦🇬', '🇦🇮', '🇦🇱', '🇦🇲', '🇦🇴', '🇦🇶', '🇦🇷', '🇦🇸', '🇦🇹', '🇦🇺', '🇦🇼', '🇦🇽', '🇦🇿', '🇧🇦', '🇧🇧', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇬', '🇧🇭', '🇧🇮', '🇧🇯', '🇧🇱', '🇧🇲', '🇧🇳', '🇧🇴', '🇧🇶', '🇧🇷', '🇧🇸', '🇧🇹', '🇧🇻', '🇧🇼', '🇧🇾', '🇧🇿', '🇨🇦', '🇨🇨', '🇨🇩', '🇨🇫', '🇨🇬', '🇨🇭', '🇨🇮', '🇨🇰', '🇨🇱', '🇨🇲', '🇨🇳', '🇨🇴', '🇨🇵', '🇨🇷', '🇨🇺', '🇨🇻', '🇨🇼', '🇨🇽', '🇨🇾', '🇨🇿', '🇩🇪', '🇩🇬', '🇩🇯', '🇩🇰', '🇩🇲', '🇩🇴', '🇩🇿', '🇪🇦', '🇪🇨', '🇪🇪', '🇪🇬', '🇪🇭', '🇪🇷', '🇪🇸', '🇪🇹', '🇪🇺', '🇫🇮', '🇫🇯', '🇫🇰', '🇫🇲', '🇫🇴', '🇫🇷', '🇬🇦', '🇬🇧', '🇬🇩', '🇬🇪', '🇬🇫', '🇬🇬', '🇬🇭', '🇬🇮', '🇬🇱', '🇬🇲', '🇬🇳', '🇬🇵', '🇬🇶', '🇬🇷', '🇬🇸', '🇬🇹', '🇬🇺', '🇬🇼', '🇬🇾', '🇭🇰', '🇭🇲', '🇭🇳', '🇭🇷', '🇭🇹', '🇭🇺', '🇮🇨', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇲', '🇮🇳', '🇮🇴', '🇮🇶', '🇮🇷', '🇮🇸', '🇮🇹', '🇯🇪', '🇯🇲', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇬', '🇰🇭', '🇰🇮', '🇰🇲', '🇰🇳', '🇰🇵', '🇰🇷', '🇰🇼', '🇰🇾', '🇰🇿', '🇱🇦', '🇱🇧', '🇱🇨', '🇱🇮', '🇱🇰', '🇱🇷', '🇱🇸', '🇱🇹', '🇱🇺', '🇱🇻', '🇱🇾', '🇲🇦', '🇲🇨', '🇲🇩', '🇲🇪', '🇲🇫', '🇲🇬', '🇲🇭', '🇲🇰', '🇲🇱', '🇲🇲', '🇲🇳', '🇲🇴', '🇲🇵', '🇲🇶', '🇲🇷', '🇲🇸', '🇲🇹', '🇲🇺', '🇲🇻', '🇲🇼', '🇲🇽', '🇲🇾', '🇲🇿', '🇳🇦', '🇳🇨', '🇳🇪', '🇳🇫', '🇳🇬', '🇳🇮', '🇳🇱', '🇳🇴', '🇳🇵', '🇳🇷', '🇳🇺', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇫', '🇵🇬', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇲', '🇵🇳', '🇵🇷', '🇵🇸', '🇵🇹', '🇵🇼', '🇵🇾', '🇶🇦', '🇷🇪', '🇷🇴', '🇷🇸', '🇷🇺', '🇷🇼', '🇸🇦', '🇸🇧', '🇸🇨', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇭', '🇸🇮', '🇸🇯', '🇸🇰', '🇸🇱', '🇸🇲', '🇸🇳', '🇸🇴', '🇸🇷', '🇸🇸', '🇸🇹', '🇸🇻', '🇸🇽', '🇸🇾', '🇸🇿', '🇹🇦', '🇹🇨', '🇹🇩', '🇹🇫', '🇹🇬', '🇹🇭', '🇹🇯', '🇹🇰', '🇹🇱', '🇹🇲', '🇹🇳', '🇹🇴', '🇹🇷', '🇹🇹', '🇹🇻', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇲', '🇺🇳', '🇺🇸', '🇺🇾', '🇺🇿', '🇻🇦', '🇻🇨', '🇻🇪', '🇻🇬', '🇻🇮', '🇻🇳', '🇻🇺', '🇼🇫', '🇼🇸', '🇽🇰', '🇾🇪', '🇾🇹', '🇿🇦', '🇿🇲', '🇿🇼', '🏴󠁧󠁢󠁥󠁮󠁧󠁿', '🏴󠁧󠁢󠁳󠁣󠁴󠁿', '🏴󠁧󠁢󠁷󠁬󠁳󠁿']
-    };
-
-    // 清空内容区域
-    emojiContent.innerHTML = '';
-
-    // 创建并显示所有分类
-    Object.entries(categories).forEach(([category, emojis]) => {
+    if (isInSearchMode()) {
+      return; // 搜索模式下不显示分类
+    }
+    // 如果是第一次加载，加载所有分类
+    if (emojiContent.children.length === 0) {
+      // 清空内容区域
+      emojiContent.innerHTML = '';
+      
+      // 添加所有分类
+      Object.keys(EMOJI_CATEGORIES).forEach(category => {
+        // 创建分类容器
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'emoji-category';
         categoryDiv.dataset.category = category;
@@ -299,155 +332,124 @@ function initFaviconFeature() {
         const emojiGrid = document.createElement('div');
         emojiGrid.className = 'emoji-grid';
 
-        emojis.forEach(emoji => {
-            const emojiItem = document.createElement('div');
-            emojiItem.className = 'emoji-item';
-            emojiItem.textContent = emoji;
-            emojiItem.addEventListener('click', () => {
-                // 移除现有的 emoji-favicon
-                faviconBox.querySelector('.emoji-favicon')?.remove();
-                
-                // 隐藏原始的 img 标签
-                currentFavicon.style.display = 'none';
-                
-                // 创建新的 emoji favicon
-                const emojiFavicon = document.createElement('div');
-                emojiFavicon.className = 'emoji-favicon';
-                emojiFavicon.textContent = emoji;
-                faviconBox.appendChild(emojiFavicon);
-
-                // 隐藏 emoji picker
-                hideEmojiPicker();
-            });
-            emojiGrid.appendChild(emojiItem);
+        // 使用 DocumentFragment 优化 DOM 操作
+        const fragment = document.createDocumentFragment();
+        EMOJI_CATEGORIES[category].forEach(emoji => {
+          const emojiItem = document.createElement('div');
+          emojiItem.className = 'emoji-item';
+          emojiItem.textContent = emoji;
+          emojiItem.dataset.emoji = emoji;
+          fragment.appendChild(emojiItem);
         });
 
+        emojiGrid.appendChild(fragment);
         categoryDiv.appendChild(emojiGrid);
         emojiContent.appendChild(categoryDiv);
-    });
-
-    // 更新选中的标签样式
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        if (tab.dataset.category === categoryName) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-    });
-  }
-
-  function selectEmoji(emoji) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-        const activeTab = tabs[0];
-        
-        chrome.storage.local.get(['faviconHistory'], function(result) {
-            const faviconHistory = result.faviconHistory || {};
-            
-            // 更新 favicon 历史
-            faviconHistory[activeTab.url] = {
-                emoji: emoji,
-                url: activeTab.url,
-                timestamp: new Date().getTime()
-            };
-            
-            // 保存到 storage
-            chrome.storage.local.set({ faviconHistory: faviconHistory }, function() {
-                // 更新显示
-                currentFavicon.style.display = 'none';
-                faviconBox.querySelector('.emoji-favicon')?.remove();
-                faviconBox.innerHTML = `<div class="emoji-favicon">${emoji}</div>`;
-                hideEmojiPicker();
-                
-                // 显示保存按钮
-                document.querySelector('button[type="submit"]').style.display = 'block';
-            });
-        });
-    });
-  }
-
-  function showEmojiPicker() {
-    emojiPicker.style.display = 'block';
-  }
-
-  function hideEmojiPicker() {
-    if (emojiPicker) {
-        emojiPicker.style.display = 'none';
-        // 移除高亮状态
-        document.getElementById('faviconBox').classList.remove('active');
+      });
     }
-    
-    const submitButton = document.querySelector('button[type="submit"]');
-    if (submitButton) {
-        const hasFaviconContent = currentFavicon && currentFavicon.src;
-        const hasEmojiFavicon = document.querySelector('.emoji-favicon') !== null;
-        
-        if (hasFaviconContent || hasEmojiFavicon) {
-            submitButton.style.display = 'block';
-        }
+
+    // 滚动到选中的分类
+    const selectedCategory = emojiContent.querySelector(`[data-category="${categoryName}"]`);
+    if (selectedCategory) {
+        // 临时禁用平滑滚动
+        emojiContent.style.scrollBehavior = 'auto';
+        selectedCategory.scrollIntoView();
+        // 恢复平滑滚动
+        setTimeout(() => {
+            emojiContent.style.scrollBehavior = 'smooth';
+        }, 0);
     }
   }
 
-  // 初始化表情选择器
-  initEmojiPicker();
-
-  // 立即加载第一个分类的表情
-  showEmojiCategory('smileys');
-
-  // 点击其他区域关闭表情选择器
-  document.addEventListener('click', function(event) {
-    const isClickInside = faviconBox.contains(event.target) || 
-                         emojiPicker.contains(event.target);
-    if (!isClickInside) {
-      hideEmojiPicker();
+  // 使用事件委托处理 emoji 点击
+  emojiContent.addEventListener('click', (event) => {
+    const emojiItem = event.target.closest('.emoji-item');
+    if (emojiItem) {
+      const emoji = emojiItem.dataset.emoji;
+      if (emoji) {
+        selectEmoji(emoji);
+      }
     }
   });
 
-  // 监听滚动事件来更新分类标签的激活状态
-  let lastScrollTime = 0;
-  let lastActiveCategory = null;
-  const SCROLL_THROTTLE = 100; // 100ms 的节流时间
+  function selectEmoji(emoji) {
+    faviconBox.querySelector('.emoji-favicon')?.remove();
+    currentFavicon.style.display = 'none';
+    
+    const emojiFavicon = document.createElement('div');
+    emojiFavicon.className = 'emoji-favicon';
+    emojiFavicon.textContent = emoji;
+    faviconBox.appendChild(emojiFavicon);
 
-  // 修改滚动事件处理
-  emojiContent.addEventListener('scroll', function() {
-    // 如果是点击触发的滚动，直接返回
-    if (isClickScroll) {
-        return;
+    hideEmojiPicker();
+    // 移除 active 类
+    faviconBox.classList.remove('active');
+  }
+
+  function hideEmojiPicker() {
+    emojiPicker.style.display = 'none';
+    // 移除 active 类
+    faviconBox.classList.remove('active');
+  }
+
+  // 使用事件委托处理分类标签点击
+  const emojiTabs = document.querySelector('.emoji-tabs');
+  emojiTabs.addEventListener('click', (event) => {
+    const tab = event.target.closest('.tab');
+    if (tab) {
+      const categoryName = tab.dataset.category;
+      isClickScroll = true;
+      updateActiveTab(categoryName);
+      showEmojiCategory(categoryName);
+      
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        isClickScroll = false;
+      }, 500);
     }
+  });
+
+  // 优化滚动事件监听器（使用节流）
+  let scrollTimer = null;
+  let lastScrollPosition = 0;
+  
+  emojiContent.addEventListener('scroll', () => {
+    if (isClickScroll) return;
     
-    const now = Date.now();
-    if (now - lastScrollTime < SCROLL_THROTTLE) {
-        return;
-    }
-    lastScrollTime = now;
+    if (scrollTimer) return;
     
-    // 获取当前可视区域中的分类
-    const categories = emojiContent.querySelectorAll('.emoji-category');
-    let newActiveCategory = null;
-    
-    // 获取滚动容器的位置信息
-    const containerRect = emojiContent.getBoundingClientRect();
-    const containerTop = containerRect.top;
-    
-    // 遍历所有分类，找到第一个在视口中的分类
-    for (const category of categories) {
+    scrollTimer = setTimeout(() => {
+      // 获取滚动方向
+      const currentScroll = emojiContent.scrollTop;
+      const scrollingDown = currentScroll > lastScrollPosition;
+      lastScrollPosition = currentScroll;
+
+      const containerRect = emojiContent.getBoundingClientRect();
+      const containerTop = containerRect.top;
+      
+      // 检查可见区域中的分类
+      const categories = emojiContent.querySelectorAll('.emoji-category');
+      let visibleCategory = null;
+      
+      for (const category of categories) {
         const rect = category.getBoundingClientRect();
         const relativeTop = rect.top - containerTop;
         
         if (relativeTop <= 10) {
-            newActiveCategory = category.dataset.category;
-        } else {
-            break;
+          visibleCategory = category.dataset.category;
         }
-    }
+      }
 
-    if (newActiveCategory && newActiveCategory !== lastActiveCategory) {
-        lastActiveCategory = newActiveCategory;
-        updateActiveTab(newActiveCategory);
-    }
+      if (visibleCategory) {
+        updateActiveTab(visibleCategory);
+      }
+
+      scrollTimer = null;
+    }, 100);
   });
 
   function updateActiveTab(categoryName) {
+    const tabs = document.querySelectorAll('.emoji-tabs .tab');
     tabs.forEach(tab => {
       if (tab.dataset.category === categoryName) {
         tab.classList.add('active');
@@ -456,6 +458,16 @@ function initFaviconFeature() {
       }
     });
   }
+
+  // 点击其他区域关闭表情选择器
+  document.addEventListener('click', function(event) {
+    const isClickInside = faviconBox.contains(event.target) || 
+                         emojiPicker.contains(event.target);
+    if (!isClickInside) {
+      hideEmojiPicker();
+      // 这里不需要额外移除 active 类，因为 hideEmojiPicker 已经处理了
+    }
+  });
 }
 
 // 显示消息函数

@@ -88,5 +88,8 @@
     },
     "emoji_category_flags": {
         "message": "국기"
+    },
+    "noEmojiFound": {
+        "message": "이모티콘을 찾을 수 없습니다"
     }
 } 

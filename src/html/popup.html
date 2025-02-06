@@ -9,7 +9,12 @@
 <body>
     <header>
         <h1 data-i18n="appName"></h1>
-        <span id="settingsIcon"><img src="../icon/setting.png" alt="settings"/></span>
+        <span id="settingsIcon">
+            <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34.0003 41L44 24L34.0003 7H14.0002L4 24L14.0002 41H34.0003Z" fill="none" stroke="#3498DB" stroke-width="3" stroke-linejoin="round"/>
+                <path d="M24 29C26.7614 29 29 26.7614 29 24C29 21.2386 26.7614 19 24 19C21.2386 19 19 21.2386 19 24C19 26.7614 21.2386 29 24 29Z" fill="none" stroke="#3498DB" stroke-width="3" stroke-linejoin="round"/>
+            </svg>
+        </span>
     </header>
     
     <main>
@@ -20,7 +25,11 @@
                         <img src="" alt="favicon" id="currentFavicon">
                     </div>
                     <input type="text" id="tabTitle" name="tabTitle" autocomplete="off">
-                    <span id="clearBtn"><img src="../icon/clear.png" alt="clear"/></span>
+                    <span id="clearBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z"/>
+                        </svg>
+                    </span>
                 </div>
             </div>
             
@@ -35,6 +44,19 @@
                     <div class="tab" data-category="symbols">❤️</div>
                     <div class="tab" data-category="flags">🏁</div>
                 </div>
+                <div class="search-container">
+                    <div class="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
+                        </svg>
+                    </div>
+                    <input type="text" class="search-input">
+                    <div class="search-clear">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z"/>
+                        </svg>
+                    </div>
+                </div>
                 <div class="emoji-content">
                     <!-- 表情内容将通过 JavaScript 动态添加 -->
                 </div>
@@ -47,6 +69,6 @@
         </form>
     </main>
 
-    <script src="../js/popup.js"></script>
+    <script type="module" src="../js/popup.js"></script>
 </body>
 </html>

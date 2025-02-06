@@ -88,5 +88,8 @@
     },
     "emoji_category_flags": {
         "message": "Bandeiras"
+    },
+    "noEmojiFound": {
+        "message": "Nenhum emoji encontrado"
     }
 } 

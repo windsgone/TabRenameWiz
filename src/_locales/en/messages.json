@@ -88,5 +88,8 @@
     },
     "newFavicon": {
         "message": "New Icon"
+    },
+    "noEmojiFound": {
+        "message": "No emoji found"
     }
   }

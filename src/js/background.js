@@ -64,10 +64,16 @@ function applyCustomizations(tabId, url) {
                         canvas.width = 32;
                         canvas.height = 32;
                         const ctx = canvas.getContext('2d');
-                        ctx.font = '32px serif';
+                        
+                        ctx.font = '32px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(emoji, 16, 20);
+                        
+                        // 检测操作系统
+                        const isWindows = navigator.userAgent.toLowerCase().includes('windows');
+                        const yPosition = isWindows ? 18 : 20;
+                        
+                        ctx.fillText(emoji, 16, yPosition);
                         
                         const link = document.createElement('link');
                         link.rel = 'icon';
