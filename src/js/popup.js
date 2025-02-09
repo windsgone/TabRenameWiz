@@ -238,8 +238,9 @@ function initFaviconFeature() {
     e.stopPropagation();
     if (emojiPicker) {
       const isHidden = window.getComputedStyle(emojiPicker).display === 'none';
+      
+      // 立即显示选择器
       emojiPicker.style.display = isHidden ? 'block' : 'none';
-      // 添加或移除高亮类
       faviconBox.classList.toggle('active', isHidden);
       
       // 仅在首次显示时初始化表情内容
@@ -310,54 +311,81 @@ function initFaviconFeature() {
 
   function showEmojiCategory(categoryName) {
     if (isInSearchMode()) {
-      return; // 搜索模式下不显示分类
+        return;
     }
-    // 如果是第一次加载，加载所有分类
+    
+    // 如果是第一次加载，先创建基础框架
     if (emojiContent.children.length === 0) {
-      // 清空内容区域
-      emojiContent.innerHTML = '';
-      
-      // 添加所有分类
-      Object.keys(EMOJI_CATEGORIES).forEach(category => {
-        // 创建分类容器
-        const categoryDiv = document.createElement('div');
-        categoryDiv.className = 'emoji-category';
-        categoryDiv.dataset.category = category;
+        // 清空内容区域
+        emojiContent.innerHTML = '';
+        
+        // 创建所有分类的容器，但暂不填充表情
+        Object.keys(EMOJI_CATEGORIES).forEach(category => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'emoji-category';
+            categoryDiv.dataset.category = category;
 
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'category-title';
-        titleDiv.textContent = chrome.i18n.getMessage(`emoji_category_${category}`);
-        categoryDiv.appendChild(titleDiv);
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'category-title';
+            titleDiv.textContent = chrome.i18n.getMessage(`emoji_category_${category}`);
+            categoryDiv.appendChild(titleDiv);
 
-        const emojiGrid = document.createElement('div');
-        emojiGrid.className = 'emoji-grid';
-
-        // 使用 DocumentFragment 优化 DOM 操作
-        const fragment = document.createDocumentFragment();
-        EMOJI_CATEGORIES[category].forEach(emoji => {
-          const emojiItem = document.createElement('div');
-          emojiItem.className = 'emoji-item';
-          emojiItem.textContent = emoji;
-          emojiItem.dataset.emoji = emoji;
-          fragment.appendChild(emojiItem);
+            const emojiGrid = document.createElement('div');
+            emojiGrid.className = 'emoji-grid';
+            emojiGrid.dataset.loaded = 'false';
+            
+            categoryDiv.appendChild(emojiGrid);
+            emojiContent.appendChild(categoryDiv);
         });
-
-        emojiGrid.appendChild(fragment);
-        categoryDiv.appendChild(emojiGrid);
-        emojiContent.appendChild(categoryDiv);
-      });
+        
+        // 准备所有表情数据并开始渲染
+        const allEmojis = [];
+        Object.entries(EMOJI_CATEGORIES).forEach(([category, emojis]) => {
+            emojis.forEach(emoji => {
+                allEmojis.push({
+                    emoji,
+                    category
+                });
+            });
+        });
+        
+        // 开始分批渲染表情
+        requestAnimationFrame(() => renderEmojis(allEmojis, 0));
     }
 
     // 滚动到选中的分类
     const selectedCategory = emojiContent.querySelector(`[data-category="${categoryName}"]`);
     if (selectedCategory) {
-        // 临时禁用平滑滚动
         emojiContent.style.scrollBehavior = 'auto';
         selectedCategory.scrollIntoView();
-        // 恢复平滑滚动
         setTimeout(() => {
             emojiContent.style.scrollBehavior = 'smooth';
         }, 0);
+    }
+  }
+
+  // 修改：按表情数量分批渲染
+  function renderEmojis(allEmojis, startIndex) {
+    const batchSize = 80; // 每批渲染的表情数量
+    const endIndex = Math.min(startIndex + batchSize, allEmojis.length);
+    
+    // 处理这一批的表情
+    for (let i = startIndex; i < endIndex; i++) {
+        const { emoji, category } = allEmojis[i];
+        const emojiGrid = emojiContent.querySelector(`[data-category="${category}"] .emoji-grid`);
+        
+        if (emojiGrid) {
+            const emojiItem = document.createElement('div');
+            emojiItem.className = 'emoji-item';
+            emojiItem.textContent = emoji;
+            emojiItem.dataset.emoji = emoji;
+            emojiGrid.appendChild(emojiItem);
+        }
+    }
+    
+    // 如果还有未渲染的表情，继续下一批
+    if (endIndex < allEmojis.length) {
+        requestAnimationFrame(() => renderEmojis(allEmojis, endIndex));
     }
   }
 
