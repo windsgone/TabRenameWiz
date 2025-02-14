@@ -7,6 +7,7 @@ let isClickScroll = false;
 
 // 预先对表情进行分类缓存
 const EMOJI_CATEGORIES = {
+  frequently: [], // 新增常用表情分类
   smileys: [],
   animals: [],
   food: [],
@@ -23,6 +24,69 @@ Object.entries(emojiData).forEach(([emoji, data]) => {
     EMOJI_CATEGORIES[data.category].push(emoji);
   }
 });
+
+// 常用表情管理
+const FREQUENTLY_USED_MAX = 18; // 常用表情最大数量
+let addEmojiDebounceTimer;
+
+// 添加到常用表情列表
+async function addToFrequentlyUsed(emoji) {
+  if (addEmojiDebounceTimer) {
+    clearTimeout(addEmojiDebounceTimer);
+  }
+
+  addEmojiDebounceTimer = setTimeout(async () => {
+    try {
+      const result = await chrome.storage.local.get(['frequentlyUsedEmojis']);
+      let frequentlyUsed = result.frequentlyUsedEmojis || [];
+      
+      // 检查是否已存在
+      const existingIndex = frequentlyUsed.findIndex(item => item.emoji === emoji);
+      
+      if (existingIndex !== -1) {
+        // 已存在，更新时间戳并移到首位
+        frequentlyUsed.splice(existingIndex, 1);
+      }
+      
+      // 添加新记录到开头
+      frequentlyUsed.unshift({
+        emoji,
+        timestamp: Date.now()
+      });
+      
+      // 限制数量
+      if (frequentlyUsed.length > FREQUENTLY_USED_MAX) {
+        frequentlyUsed = frequentlyUsed.slice(0, FREQUENTLY_USED_MAX);
+      }
+      
+      // 更新存储
+      await chrome.storage.local.set({ frequentlyUsedEmojis: frequentlyUsed });
+      
+      // 更新 EMOJI_CATEGORIES 中的常用表情列表
+      EMOJI_CATEGORIES.frequently = frequentlyUsed.map(item => item.emoji);
+      
+      // 如果当前在常用分类，刷新显示
+      if (document.querySelector('.emoji-tabs .tab.active')?.dataset.category === 'frequently') {
+        const frequentlyGrid = document.querySelector('[data-category="frequently"] .emoji-grid');
+        if (frequentlyGrid) {
+          // 清空现有内容
+          frequentlyGrid.innerHTML = '';
+          
+          // 重新渲染常用表情
+          EMOJI_CATEGORIES.frequently.forEach(emoji => {
+            const emojiItem = document.createElement('div');
+            emojiItem.className = 'emoji-item';
+            emojiItem.textContent = emoji;
+            emojiItem.dataset.emoji = emoji;
+            frequentlyGrid.appendChild(emojiItem);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('添加常用表情失败:', error);
+    }
+  }, 300); // 300ms 防抖
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   const renameForm = document.getElementById("renameForm");
@@ -309,9 +373,18 @@ function initFaviconFeature() {
     showEmojiCategory('smileys');
   });
 
-  function showEmojiCategory(categoryName) {
+  async function showEmojiCategory(categoryName) {
     if (isInSearchMode()) {
         return;
+    }
+    
+    // 如果是常用分类，特殊处理
+    if (categoryName === 'frequently') {
+      const result = await chrome.storage.local.get(['frequentlyUsedEmojis']);
+      const frequentlyUsed = result.frequentlyUsedEmojis || [];
+      
+      // 更新 EMOJI_CATEGORIES
+      EMOJI_CATEGORIES.frequently = frequentlyUsed.map(item => item.emoji);
     }
     
     // 如果是第一次加载，先创建基础框架
@@ -341,16 +414,36 @@ function initFaviconFeature() {
         // 准备所有表情数据并开始渲染
         const allEmojis = [];
         Object.entries(EMOJI_CATEGORIES).forEach(([category, emojis]) => {
-            emojis.forEach(emoji => {
-                allEmojis.push({
-                    emoji,
-                    category
+            if (category !== 'frequently') { // 排除常用分类，避免重复渲染
+                emojis.forEach(emoji => {
+                    allEmojis.push({
+                        emoji,
+                        category
+                    });
                 });
-            });
+            }
         });
         
         // 开始分批渲染表情
         requestAnimationFrame(() => renderEmojis(allEmojis, 0));
+    }
+
+    // 如果是常用分类，需要特殊处理渲染
+    if (categoryName === 'frequently') {
+      const frequentlyGrid = document.querySelector('[data-category="frequently"] .emoji-grid');
+      if (frequentlyGrid) {
+        // 清空现有内容
+        frequentlyGrid.innerHTML = '';
+        
+        // 渲染常用表情
+        EMOJI_CATEGORIES.frequently.forEach(emoji => {
+          const emojiItem = document.createElement('div');
+          emojiItem.className = 'emoji-item';
+          emojiItem.textContent = emoji;
+          emojiItem.dataset.emoji = emoji;
+          frequentlyGrid.appendChild(emojiItem);
+        });
+      }
     }
 
     // 滚动到选中的分类
@@ -409,8 +502,10 @@ function initFaviconFeature() {
     emojiFavicon.textContent = emoji;
     faviconBox.appendChild(emojiFavicon);
 
+    // 添加到常用表情
+    addToFrequentlyUsed(emoji);
+    
     hideEmojiPicker();
-    // 移除 active 类
     faviconBox.classList.remove('active');
   }
 
@@ -496,6 +591,49 @@ function initFaviconFeature() {
       // 这里不需要额外移除 active 类，因为 hideEmojiPicker 已经处理了
     }
   });
+
+  // 修改：初始化表情分类标签
+  function initEmojiTabs() {
+    const emojiTabs = document.querySelector('.emoji-tabs');
+    if (!emojiTabs) return;
+
+    // 清空现有标签
+    emojiTabs.innerHTML = '';
+    
+    // 创建所有分类的标签，常用表情放在最前面
+    const categories = [
+      { id: 'frequently', emoji: '🕒' }, // 使用时钟表情表示"常用"
+      { id: 'smileys', emoji: '😀' },
+      { id: 'animals', emoji: '🐱' },
+      { id: 'food', emoji: '🍎' },
+      { id: 'activity', emoji: '⚽' },
+      { id: 'travel', emoji: '🚗' },
+      { id: 'objects', emoji: '💡' },
+      { id: 'symbols', emoji: '❤️' },
+      { id: 'flags', emoji: '🏁' }
+    ];
+
+    categories.forEach(({ id, emoji }) => {
+      const tab = document.createElement('div');
+      tab.className = 'tab';
+      tab.dataset.category = id;
+      tab.setAttribute('title', chrome.i18n.getMessage(`emoji_category_${id}`));
+      tab.textContent = emoji;
+      
+      // 默认激活常用表情标签
+      if (id === 'frequently') {
+        tab.classList.add('active');
+      }
+      
+      emojiTabs.appendChild(tab);
+    });
+
+    // 初始显示常用表情分类
+    showEmojiCategory('frequently');
+  }
+
+  // 在适当的位置调用初始化函数
+  initEmojiTabs();
 }
 
 // 显示消息函数

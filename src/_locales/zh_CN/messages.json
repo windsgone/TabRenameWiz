@@ -91,5 +91,8 @@
     },
     "noEmojiFound": {
         "message": "未找到表情"
+    },
+    "emoji_category_frequently": {
+      "message": "常用表情"
     }
   }

@@ -197,17 +197,34 @@ button[type="submit"]:hover {
     border-bottom: 1px solid #DDD;
     background: white;
     margin-bottom: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+/* 隐藏 Webkit 浏览器的滚动条 */
+.emoji-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 .tab {
-    width: 32px;
+    min-width: 32px;
+    height: 32px;
     flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 6px 0px;
     font-size: 18px;
     cursor: pointer;
     border-radius: 4px;
     position: relative;
+    transition: background-color 0.2s;
+}
+
+/* 添加新的样式用于常用表情 tab */
+.tab[data-category="frequently"] {
+    color: #3498DB;
 }
 
 .tab:hover {

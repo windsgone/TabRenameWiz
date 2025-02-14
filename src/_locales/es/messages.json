@@ -91,5 +91,8 @@
     },
     "noEmojiFound": {
         "message": "No se encontró un emoticono"
+    },
+    "emoji_category_frequently": {
+        "message": "Frecuentemente usados"
     }
 } 

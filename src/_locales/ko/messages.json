@@ -91,5 +91,8 @@
     },
     "noEmojiFound": {
         "message": "이모티콘을 찾을 수 없습니다"
+    },
+    "emoji_category_frequently": {
+        "message": "자주 사용되는"
     }
 } 

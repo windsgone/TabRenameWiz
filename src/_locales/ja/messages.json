@@ -91,5 +91,8 @@
     },
     "noEmojiFound": {
         "message": "顔文字が見つかりません"
+    },
+    "emoji_category_frequently": {
+        "message": "よく使われる"
     }
 } 
