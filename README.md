@@ -11,6 +11,17 @@ A powerful Chrome extension for customizing the titles and icons of browser tabs
 - Support quick access to commonly used emojis
 - Multilingual support (English, Chinese, French, German, Spanish, Japanese, Korean, Portuguese)
 
+## Installation
+
+Tab Rename Wiz is compatible with Chromium-based browsers.
+
+| Browser        | Install Link                                                                                                | Web Store             |
+|----------------|-------------------------------------------------------------------------------------------------------------|-----------------------|
+| Google Chrome  | ⬇️ [Install](https://chromewebstore.google.com/detail/tab-rename-wiz-modify-tab/nolmmmfbcjgjejnoajfkikdikaelamcg) | Chrome Web Store      |
+| Arc            | ⬇️ [Install](https://chromewebstore.google.com/detail/tab-rename-wiz-modify-tab/nolmmmfbcjgjejnoajfkikdikaelamcg) | Chrome Web Store      |
+| Brave          | ⬇️ [Install](https://chromewebstore.google.com/detail/tab-rename-wiz-modify-tab/nolmmmfbcjgjejnoajfkikdikaelamcg) | Chrome Web Store      |
+| Microsoft Edge | ⬇️ [Install](https://microsoftedge.microsoft.com/addons/detail/hdbbpgpcdhpofmmodmbbfgmnhhbgamnj) | Microsoft Edge Addons |
+
 ## How to Use
 
 1. Click the extension icon to open the pop-up window.
@@ -26,12 +37,6 @@ We highly value user privacy:
 - All data is stored only in the local browser.
 - Data is not shared with any third parties.
 - Completely open - source and transparent.
-
-## Supported Browsers
-
-- Google Chrome
-- Microsoft Edge
-- Other Chromium - based browsers
 
 ## Technical Features
 
