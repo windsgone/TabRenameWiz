@@ -1,53 +1,53 @@
 # Tab Rename Wiz
 
-一个强大的 Chrome 扩展程序,用于自定义浏览器标签页的标题和图标。
+A powerful Chrome extension for customizing the titles and icons of browser tabs.
 
-## 主要功能
+## Main Features
 
-- 修改标签页标题
-- 使用表情符号自定义标签页图标
-- 搜索表情符号
-- 保存自定义设置,下次访问时自动应用
-- 支持常用表情快速访问
-- 多语言支持(英语、中文、法语、德语、西班牙语、日语、韩语、葡萄牙语)
+- Modify tab titles
+- Customize tab icons with emojis
+- Search for emojis
+- Save custom settings and apply them automatically on the next visit
+- Support quick access to commonly used emojis
+- Multilingual support (English, Chinese, French, German, Spanish, Japanese, Korean, Portuguese)
 
-## 使用方法
+## How to Use
 
-1. 点击扩展图标打开弹出窗口
-2. 输入新的标签页标题
-3. (可选)点击图标区域选择表情符号作为新图标
-4. 点击保存按钮应用更改
+1. Click the extension icon to open the pop-up window.
+2. Enter the new tab title.
+3. (Optional) Click the icon area to select an emoji as the new icon.
+4. Click the save button to apply the changes.
 
-## 隐私政策
+## Privacy Policy
 
-我们高度重视用户隐私:
+We highly value user privacy:
 
-- 不收集任何个人信息
-- 所有数据仅存储在本地浏览器中
-- 不与任何第三方共享数据
-- 完全开源透明
+- No personal information is collected.
+- All data is stored only in the local browser.
+- Data is not shared with any third parties.
+- Completely open - source and transparent.
 
-## 支持的浏览器
+## Supported Browsers
 
 - Google Chrome
 - Microsoft Edge
-- 其他基于 Chromium 的浏览器
+- Other Chromium - based browsers
 
-## 技术特点
+## Technical Features
 
-- 使用 Chrome Extension Manifest V3
-- 支持持久化存储自定义设置
-- 优化的表情符号选择器
-- 实时预览效果
-- 支持受保护页面检测
+- Use Chrome Extension Manifest V3
+- Support persistent storage of custom settings
+- Optimized emoji selector
+- Real - time preview effect
+- Support protected page detection
 
-## 反馈与支持
+## Feedback and Support
 
-如果您遇到任何问题或有建议,请通过以下方式联系我们:
+If you encounter any problems or have suggestions, please contact us in the following ways:
 
-- 在 GitHub 上提交 Issue
-- 发送邮件至 fzywind@gmail.com
+- Submit an Issue on GitHub
+- Send an email to fzywind@gmail.com
 
-## 许可证
+## License
 
 MIT License
