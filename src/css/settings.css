@@ -19,6 +19,48 @@ header h1 {
     color: #3498DB;
 }
 
+.bmc-container {
+    margin-left: 20px;
+}
+
+.bmc-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #FFDD00;
+    color: #000000;
+    border-radius: 5px;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.bmc-button:hover {
+    background-color: #FFCC00;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bmc-button:before {
+    content: "☕";
+    margin-right: 8px;
+    font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .bmc-container {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
+
 table {
     width: 100%;
     min-width: 800px;

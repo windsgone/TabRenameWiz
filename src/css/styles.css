@@ -261,6 +261,8 @@ button[type="submit"]:hover {
 
 .emoji-category {
     margin-bottom: 10px;
+    padding-top: 5px;
+    scroll-margin-top: 5px;
 }
 
 .category-title {
@@ -360,4 +362,29 @@ button[type="submit"]:hover {
 
 .search-clear:hover svg {
     fill: #666;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 260px;
+    width: 100%;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 2px solid rgba(52, 152, 219, 0.2);
+    border-radius: 50%;
+    border-top-color: #3498DB;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
