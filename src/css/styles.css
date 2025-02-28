@@ -197,17 +197,34 @@ button[type="submit"]:hover {
     border-bottom: 1px solid #DDD;
     background: white;
     margin-bottom: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+/* 隐藏 Webkit 浏览器的滚动条 */
+.emoji-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 .tab {
-    width: 32px;
+    min-width: 32px;
+    height: 32px;
     flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 6px 0px;
     font-size: 18px;
     cursor: pointer;
     border-radius: 4px;
     position: relative;
+    transition: background-color 0.2s;
+}
+
+/* 添加新的样式用于常用表情 tab */
+.tab[data-category="frequently"] {
+    color: #3498DB;
 }
 
 .tab:hover {
@@ -244,6 +261,8 @@ button[type="submit"]:hover {
 
 .emoji-category {
     margin-bottom: 10px;
+    padding-top: 5px;
+    scroll-margin-top: 5px;
 }
 
 .category-title {
@@ -343,4 +362,29 @@ button[type="submit"]:hover {
 
 .search-clear:hover svg {
     fill: #666;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 260px;
+    width: 100%;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 2px solid rgba(52, 152, 219, 0.2);
+    border-radius: 50%;
+    border-top-color: #3498DB;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

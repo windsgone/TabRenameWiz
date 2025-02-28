@@ -1,9 +1,9 @@
 {
     "app_name": {
-      "message": "标签修改精灵"
+      "message": "标签修改精灵 - 修改标签名称和图标"
     },
     "app_description": {
-      "message": "轻松修改并保存标签名称和图标！"
+      "message": "轻松修改标签名称和图标！下次打开时还在！"
     },
     "appName": {
       "message": "标签修改精灵"
@@ -91,5 +91,8 @@
     },
     "noEmojiFound": {
         "message": "未找到表情"
+    },
+    "emoji_category_frequently": {
+      "message": "常用表情"
     }
   }

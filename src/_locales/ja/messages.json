@@ -1,9 +1,9 @@
 {
     "app_name": {
-      "message": "Tab Rename Wiz"
+      "message": "Tab Rename Wiz - Modify Tab Titles & Icons"
     },
     "app_description": {
-      "message": "タブのタイトルを簡単に変更して保存！そして新しいアイコンを選択！"
+      "message": "永続的なタブタイトルとアイコン：ブラウザをカスタマイズ"
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -91,5 +91,8 @@
     },
     "noEmojiFound": {
         "message": "顔文字が見つかりません"
+    },
+    "emoji_category_frequently": {
+        "message": "よく使われる"
     }
 } 

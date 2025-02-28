@@ -1,9 +1,9 @@
 {
     "app_name": {
-      "message": "Tab Rename Wiz"
+      "message": "Tab Rename Wiz - Modify Tab Titles & Icons"
     },
     "app_description": {
-      "message": "Renommez et sauvegardez facilement les titres des onglets ! Et sélectionnez un nouvel icône !"
+      "message": "Titres et icônes d'onglet persistants : Personnalisez votre navigateur."
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -91,5 +91,8 @@
     },
     "noEmojiFound": {
         "message": "Aucun emoji trouvé"
+    },
+    "emoji_category_frequently": {
+        "message": "Fréquemment utilisés"
     }
 } 

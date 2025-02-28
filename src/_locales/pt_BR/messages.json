@@ -1,9 +1,9 @@
 {
     "app_name": {
-      "message": "Tab Rename Wiz"
+      "message": "Tab Rename Wiz - Modify Tab Titles & Icons"
     },
     "app_description": {
-      "message": "Renomeie e salve títulos de abas facilmente! E selecione um novo ícone!"
+      "message": "Títulos e ícones de abas persistentes: Personalize seu navegador."
     },
     "appName": {
       "message": "Tab Rename Wiz"
@@ -91,5 +91,8 @@
     },
     "noEmojiFound": {
         "message": "Nenhum emoji encontrado"
+    },
+    "emoji_category_frequently": {
+        "message": "Frequentemente usados"
     }
 } 

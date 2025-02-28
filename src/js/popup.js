@@ -7,6 +7,7 @@ let isClickScroll = false;
 
 // 预先对表情进行分类缓存
 const EMOJI_CATEGORIES = {
+  frequently: [], // 新增常用表情分类
   smileys: [],
   animals: [],
   food: [],
@@ -23,6 +24,69 @@ Object.entries(emojiData).forEach(([emoji, data]) => {
     EMOJI_CATEGORIES[data.category].push(emoji);
   }
 });
+
+// 常用表情管理
+const FREQUENTLY_USED_MAX = 18; // 常用表情最大数量
+let addEmojiDebounceTimer;
+
+// 添加到常用表情列表
+async function addToFrequentlyUsed(emoji) {
+  if (addEmojiDebounceTimer) {
+    clearTimeout(addEmojiDebounceTimer);
+  }
+
+  addEmojiDebounceTimer = setTimeout(async () => {
+    try {
+      const result = await chrome.storage.local.get(['frequentlyUsedEmojis']);
+      let frequentlyUsed = result.frequentlyUsedEmojis || [];
+      
+      // 检查是否已存在
+      const existingIndex = frequentlyUsed.findIndex(item => item.emoji === emoji);
+      
+      if (existingIndex !== -1) {
+        // 已存在，更新时间戳并移到首位
+        frequentlyUsed.splice(existingIndex, 1);
+      }
+      
+      // 添加新记录到开头
+      frequentlyUsed.unshift({
+        emoji,
+        timestamp: Date.now()
+      });
+      
+      // 限制数量
+      if (frequentlyUsed.length > FREQUENTLY_USED_MAX) {
+        frequentlyUsed = frequentlyUsed.slice(0, FREQUENTLY_USED_MAX);
+      }
+      
+      // 更新存储
+      await chrome.storage.local.set({ frequentlyUsedEmojis: frequentlyUsed });
+      
+      // 更新 EMOJI_CATEGORIES 中的常用表情列表
+      EMOJI_CATEGORIES.frequently = frequentlyUsed.map(item => item.emoji);
+      
+      // 如果当前在常用分类，刷新显示
+      if (document.querySelector('.emoji-tabs .tab.active')?.dataset.category === 'frequently') {
+        const frequentlyGrid = document.querySelector('[data-category="frequently"] .emoji-grid');
+        if (frequentlyGrid) {
+          // 清空现有内容
+          frequentlyGrid.innerHTML = '';
+          
+          // 重新渲染常用表情
+          EMOJI_CATEGORIES.frequently.forEach(emoji => {
+            const emojiItem = document.createElement('div');
+            emojiItem.className = 'emoji-item';
+            emojiItem.textContent = emoji;
+            emojiItem.dataset.emoji = emoji;
+            frequentlyGrid.appendChild(emojiItem);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('添加常用表情失败:', error);
+    }
+  }, 300); // 300ms 防抖
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   const renameForm = document.getElementById("renameForm");
@@ -238,13 +302,41 @@ function initFaviconFeature() {
     e.stopPropagation();
     if (emojiPicker) {
       const isHidden = window.getComputedStyle(emojiPicker).display === 'none';
+      
+      // 立即显示选择器
       emojiPicker.style.display = isHidden ? 'block' : 'none';
-      // 添加或移除高亮类
       faviconBox.classList.toggle('active', isHidden);
       
-      // 仅在首次显示时初始化表情内容
-      if (isHidden && emojiContent.children.length === 0) {
-        showEmojiCategory('smileys');
+      if (isHidden) {
+        // 显示加载动画
+        emojiContent.innerHTML = `
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+          </div>
+        `;
+        
+        // 确保搜索框为空
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+          searchInput.value = '';
+        }
+        const searchClear = document.querySelector('.search-clear');
+        if (searchClear) {
+          searchClear.style.display = 'none';
+        }
+        
+        // 重置搜索模式
+        if (isInSearchMode()) {
+          clearSearch(searchInput, emojiContent);
+        }
+        
+        // 关键修改：强制重置初始化状态，确保每次都重新渲染
+        emojiContent.removeAttribute('data-initialized');
+        
+        // 直接加载表情，不使用requestAnimationFrame
+        showEmojiCategory('frequently');
+        // 确保标签状态正确
+        updateActiveTab('frequently');
       }
     }
   });
@@ -286,7 +378,8 @@ function initFaviconFeature() {
     searchTimer = setTimeout(() => {
       if (!keyword.trim()) {
         clearSearch(searchInput, emojiContent);
-        showEmojiCategory('smileys');
+        showEmojiCategory('frequently');
+        updateActiveTab('frequently');
         return;
       }
 
@@ -305,60 +398,77 @@ function initFaviconFeature() {
     searchInput.value = '';
     searchClear.style.display = 'none';
     clearSearch(searchInput, emojiContent);
-    showEmojiCategory('smileys');
+    showEmojiCategory('frequently');
+    updateActiveTab('frequently');
   });
 
-  function showEmojiCategory(categoryName) {
+  async function showEmojiCategory(categoryName) {
     if (isInSearchMode()) {
-      return; // 搜索模式下不显示分类
+        return;
     }
-    // 如果是第一次加载，加载所有分类
-    if (emojiContent.children.length === 0) {
-      // 清空内容区域
-      emojiContent.innerHTML = '';
-      
-      // 添加所有分类
-      Object.keys(EMOJI_CATEGORIES).forEach(category => {
-        // 创建分类容器
+    
+    // 如果是常用分类，特殊处理
+    if (categoryName === 'frequently') {
+      try {
+        const result = await chrome.storage.local.get(['frequentlyUsedEmojis']);
+        const frequentlyUsed = result.frequentlyUsedEmojis || [];
+        
+        // 更新 EMOJI_CATEGORIES
+        EMOJI_CATEGORIES.frequently = frequentlyUsed.map(item => item.emoji);
+      } catch (error) {
+        console.error('获取常用表情失败:', error);
+        EMOJI_CATEGORIES.frequently = [];
+      }
+    }
+    
+    // 关键修改：每次都重新渲染所有表情，确保内容始终存在
+    // 清空现有内容，重新创建
+    emojiContent.innerHTML = '';
+    
+    // 创建所有分类的容器
+    Object.keys(EMOJI_CATEGORIES).forEach(category => {
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'emoji-category';
         categoryDiv.dataset.category = category;
 
         const titleDiv = document.createElement('div');
         titleDiv.className = 'category-title';
-        titleDiv.textContent = chrome.i18n.getMessage(`emoji_category_${category}`);
+        titleDiv.textContent = chrome.i18n.getMessage(`emoji_category_${category}`) || category;
         categoryDiv.appendChild(titleDiv);
 
         const emojiGrid = document.createElement('div');
         emojiGrid.className = 'emoji-grid';
-
-        // 使用 DocumentFragment 优化 DOM 操作
-        const fragment = document.createDocumentFragment();
+        
+        // 立即填充表情
         EMOJI_CATEGORIES[category].forEach(emoji => {
-          const emojiItem = document.createElement('div');
-          emojiItem.className = 'emoji-item';
-          emojiItem.textContent = emoji;
-          emojiItem.dataset.emoji = emoji;
-          fragment.appendChild(emojiItem);
+            const emojiItem = document.createElement('div');
+            emojiItem.className = 'emoji-item';
+            emojiItem.textContent = emoji;
+            emojiItem.dataset.emoji = emoji;
+            emojiGrid.appendChild(emojiItem);
         });
-
-        emojiGrid.appendChild(fragment);
+        
         categoryDiv.appendChild(emojiGrid);
         emojiContent.appendChild(categoryDiv);
-      });
+    });
+    
+    // 移除加载动画
+    const loadingSpinner = emojiContent.querySelector('.loading-spinner');
+    if (loadingSpinner) {
+        loadingSpinner.remove();
     }
-
+    
     // 滚动到选中的分类
     const selectedCategory = emojiContent.querySelector(`[data-category="${categoryName}"]`);
     if (selectedCategory) {
-        // 临时禁用平滑滚动
-        emojiContent.style.scrollBehavior = 'auto';
-        selectedCategory.scrollIntoView();
-        // 恢复平滑滚动
-        setTimeout(() => {
-            emojiContent.style.scrollBehavior = 'smooth';
-        }, 0);
+        selectedCategory.scrollIntoView({
+            behavior: 'auto',
+            block: 'start'
+        });
     }
+    
+    // 设置初始化标志
+    emojiContent.setAttribute('data-initialized', 'true');
   }
 
   // 使用事件委托处理 emoji 点击
@@ -381,8 +491,22 @@ function initFaviconFeature() {
     emojiFavicon.textContent = emoji;
     faviconBox.appendChild(emojiFavicon);
 
+    // 添加到常用表情
+    addToFrequentlyUsed(emoji);
+    
+    // 修改：先重置表情选择器状态，再隐藏
+    if (isInSearchMode()) {
+      const searchInput = document.querySelector('.search-input');
+      if (searchInput) {
+        searchInput.value = '';
+      }
+      clearSearch(document.querySelector('.search-input'), emojiContent);
+    }
+    
+    // 确保常用表情分类被更新
+    updateActiveTab('frequently');
+    
     hideEmojiPicker();
-    // 移除 active 类
     faviconBox.classList.remove('active');
   }
 
@@ -390,6 +514,16 @@ function initFaviconFeature() {
     emojiPicker.style.display = 'none';
     // 移除 active 类
     faviconBox.classList.remove('active');
+    
+    // 添加：确保下次打开时能正确显示表情
+    // 重置搜索状态
+    if (isInSearchMode()) {
+      const searchInput = document.querySelector('.search-input');
+      if (searchInput) {
+        searchInput.value = '';
+      }
+      clearSearch(document.querySelector('.search-input'), emojiContent);
+    }
   }
 
   // 使用事件委托处理分类标签点击
@@ -400,7 +534,16 @@ function initFaviconFeature() {
       const categoryName = tab.dataset.category;
       isClickScroll = true;
       updateActiveTab(categoryName);
-      showEmojiCategory(categoryName);
+      
+      // 立即显示对应分类，不使用滚动动画
+      const selectedCategory = emojiContent.querySelector(`[data-category="${categoryName}"]`);
+      if (selectedCategory) {
+        // 使用 scrollIntoView 方法，直接定位到目标位置，不使用平滑滚动
+        selectedCategory.scrollIntoView({
+            behavior: 'instant', // 改为 'instant' 以立即滚动，不使用动画
+            block: 'start'    // 确保元素顶部与容器顶部对齐
+        });
+      }
       
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
@@ -468,6 +611,46 @@ function initFaviconFeature() {
       // 这里不需要额外移除 active 类，因为 hideEmojiPicker 已经处理了
     }
   });
+
+  // 修改：初始化表情分类标签
+  function initEmojiTabs() {
+    const emojiTabs = document.querySelector('.emoji-tabs');
+    if (!emojiTabs) return;
+
+    // 清空现有标签
+    emojiTabs.innerHTML = '';
+    
+    // 创建所有分类的标签，常用表情放在最前面
+    const categories = [
+      { id: 'frequently', emoji: '🕒' }, // 使用时钟表情表示"常用"
+      { id: 'smileys', emoji: '😀' },
+      { id: 'animals', emoji: '🐱' },
+      { id: 'food', emoji: '🍎' },
+      { id: 'activity', emoji: '⚽' },
+      { id: 'travel', emoji: '🚗' },
+      { id: 'objects', emoji: '💡' },
+      { id: 'symbols', emoji: '❤️' },
+      { id: 'flags', emoji: '🏁' }
+    ];
+
+    categories.forEach(({ id, emoji }) => {
+      const tab = document.createElement('div');
+      tab.className = 'tab';
+      tab.dataset.category = id;
+      tab.setAttribute('title', chrome.i18n.getMessage(`emoji_category_${id}`));
+      tab.textContent = emoji;
+      
+      // 默认激活常用表情标签
+      if (id === 'frequently') {
+        tab.classList.add('active');
+      }
+      
+      emojiTabs.appendChild(tab);
+    });
+  }
+
+  // 在适当的位置调用初始化函数
+  initEmojiTabs();
 }
 
 // 显示消息函数
