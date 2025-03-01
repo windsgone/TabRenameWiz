@@ -1,5 +1,6 @@
 import emojiData from './data/emojiData.js';
 import { searchEmojis, buildSearchResultsHTML, isInSearchMode, setSearchMode, clearSearch } from './utils/emojiSearch.js';
+import { initThemeDetector } from './utils/theme-detector.js';
 
 let scrollListenerEnabled = true;
 let scrollTimeout;
@@ -92,6 +93,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const renameForm = document.getElementById("renameForm");
   const tabTitleInput = document.getElementById("tabTitle");
   
+  // 初始化主题检测器
+  initThemeDetector();
+  
+  // 监听主题变化事件
+  document.addEventListener('themeChanged', (event) => {
+    const isDarkMode = event.detail.isDarkMode;
+    console.log(`应用主题已更改: ${isDarkMode ? '暗色模式' : '浅色模式'}`);
+  });
+
   // 初始化 i18n
   document.querySelector("h1").innerText = chrome.i18n.getMessage("appName");
   document.querySelector("button").innerText = chrome.i18n.getMessage("renameTabButton");
@@ -397,7 +407,7 @@ function initFaviconFeature() {
   searchClear.addEventListener('click', () => {
     searchInput.value = '';
     searchClear.style.display = 'none';
-    clearSearch(searchInput, emojiContent);
+    clearSearch(document.querySelector('.search-input'), emojiContent);
     showEmojiCategory('frequently');
     updateActiveTab('frequently');
   });
