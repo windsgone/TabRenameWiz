@@ -1,5 +1,17 @@
+// 导入主题检测器
+import { initThemeDetector } from './utils/theme-detector.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     try {
+        // 初始化主题检测器
+        initThemeDetector();
+        
+        // 监听主题变化事件
+        document.addEventListener('themeChanged', (event) => {
+            const isDarkMode = event.detail.isDarkMode;
+            console.log(`设置页面主题已更改: ${isDarkMode ? '暗色模式' : '浅色模式'}`);
+        });
+        
         // 初始化 i18n
         initI18n();
         
