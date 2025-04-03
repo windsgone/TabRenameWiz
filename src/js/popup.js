@@ -96,15 +96,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const urlMatcherContainer = document.getElementById("urlMatcherContainer");
   let urlMatcher; // URL匹配规则UI组件实例
   
-  // 初始化主题检测器
-  initThemeDetector();
-  
-  // 监听主题变化事件
-  document.addEventListener('themeChanged', (event) => {
-    const isDarkMode = event.detail.isDarkMode;
-    console.log(`应用主题已更改: ${isDarkMode ? '暗色模式' : '浅色模式'}`);
-  });
-
   // 初始化 i18n
   document.querySelector("h1").innerText = chrome.i18n.getMessage("appName");
   document.querySelector("button").innerText = chrome.i18n.getMessage("renameTabButton");
@@ -513,7 +504,7 @@ function initFaviconFeature() {
   searchClear.addEventListener('click', () => {
     searchInput.value = '';
     searchClear.style.display = 'none';
-    clearSearch(document.querySelector('.search-input'), emojiContent);
+    clearSearch(searchInput, emojiContent);
     showEmojiCategory('frequently');
     updateActiveTab('frequently');
   });
