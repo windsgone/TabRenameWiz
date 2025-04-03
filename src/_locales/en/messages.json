@@ -32,6 +32,9 @@
     "url": {
       "message": "URL"
     },
+    "matchRule": {
+      "message": "Match Rule"
+    },
     "actions": {
       "message": "Actions"
     },
@@ -51,10 +54,10 @@
         "message": "Renamed successfully"
     },
     "renameFailed": {
-        "message": "Rename failed, this page may not allow title modification"
+        "message": "Failed to rename"
     },
     "protectedPageError": {
-      "message": "Cannot modify browser system page titles"
+      "message": "Cannot modify protected browser pages"
     },
     "executionError": {
       "message": "Rename operation failed, please try again"
@@ -94,5 +97,44 @@
     },
     "emoji_category_frequently": {
       "message": "Frequently Used"
+    },
+    "matchRuleEquals": {
+        "message": "is"
+    },
+    "matchRuleStartsWith": {
+        "message": "starts with"
+    },
+    "matchRuleEndsWith": {
+        "message": "ends with"
+    },
+    "matchRuleContains": {
+        "message": "contains"
+    },
+    "urlMatchRuleTitle": {
+        "message": "URL"
+    },
+    "urlMatchRuleExpand": {
+        "message": "Edit rule"
+    },
+    "urlMatchRuleCollapse": {
+        "message": "Collapse"
+    },
+    "urlMatchRuleCondition": {
+        "message": "Condition"
+    },
+    "urlMatchRuleAddress": {
+        "message": "URL address"
+    },
+    "urlNotMatch": {
+        "message": "Settings saved. Changes will apply when URL matches the rule."
+    },
+    "saveSuccess": {
+        "message": "Settings saved successfully"
+    },
+    "generalError": {
+        "message": "An error occurred"
+    },
+    "rulePriorityInfo": {
+        "message": "Priority: equals > starts with > ends with > contains"
     }
-  }
+}

@@ -1,5 +1,6 @@
 import emojiData from './data/emojiData.js';
 import { searchEmojis, buildSearchResultsHTML, isInSearchMode, setSearchMode, clearSearch } from './utils/emojiSearch.js';
+import { MATCH_RULES, createUrlMatcherUI } from './utils/urlMatcher.js';
 
 let scrollListenerEnabled = true;
 let scrollTimeout;
@@ -28,6 +29,7 @@ Object.entries(emojiData).forEach(([emoji, data]) => {
 // 常用表情管理
 const FREQUENTLY_USED_MAX = 18; // 常用表情最大数量
 let addEmojiDebounceTimer;
+let selectedEmoji; // 添加全局变量存储选中的表情
 
 // 添加到常用表情列表
 async function addToFrequentlyUsed(emoji) {
@@ -91,6 +93,8 @@ async function addToFrequentlyUsed(emoji) {
 document.addEventListener("DOMContentLoaded", function () {
   const renameForm = document.getElementById("renameForm");
   const tabTitleInput = document.getElementById("tabTitle");
+  const urlMatcherContainer = document.getElementById("urlMatcherContainer");
+  let urlMatcher; // URL匹配规则UI组件实例
   
   // 初始化 i18n
   document.querySelector("h1").innerText = chrome.i18n.getMessage("appName");
@@ -101,177 +105,283 @@ document.addEventListener("DOMContentLoaded", function () {
     const activeTab = tabs[0];
     chrome.storage.local.get(['tabHistory'], function(result) {
       const history = result.tabHistory || {};
-      if (history[activeTab.url]) {
+      
+      // 查找匹配的设置
+      let matchedSettings = [];
+      
+      // 遍历所有保存的设置，查找匹配的URL
+      Object.entries(history).forEach(([savedUrl, item]) => {
+        // 检查URL是否匹配
+        if (isUrlMatched(activeTab.url, item.customUrl || savedUrl, item.matchRule || 'equals')) {
+          // 添加时间戳（如果没有则使用当前时间）
+          const settingWithTimestamp = {
+            ...item,
+            savedUrl,
+            timestamp: item.timestamp || Date.now()
+          };
+          matchedSettings.push(settingWithTimestamp);
+        }
+      });
+      
+      // 如果有匹配的设置，按优先级排序
+      if (matchedSettings.length > 0) {
+        // 规则类型优先级映射
+        const rulePriority = {
+          'equals': 1,
+          'startsWith': 2,
+          'endsWith': 3,
+          'contains': 4
+        };
+        
+        // 按优先级排序：1.规则类型 2.URL长度 3.时间戳
+        matchedSettings.sort((a, b) => {
+          // 首先按规则类型排序
+          const priorityA = rulePriority[a.matchRule || 'equals'];
+          const priorityB = rulePriority[b.matchRule || 'equals'];
+          
+          if (priorityA !== priorityB) {
+            return priorityA - priorityB; // 数字小的优先级高
+          }
+          
+          // 如果规则类型相同，按URL长度排序（长的优先）
+          const urlLengthA = (a.customUrl || a.savedUrl).length;
+          const urlLengthB = (b.customUrl || b.savedUrl).length;
+          
+          if (urlLengthA !== urlLengthB) {
+            return urlLengthB - urlLengthA; // 长度大的优先级高
+          }
+          
+          // 如果URL长度也相同，按时间戳排序（新的优先）
+          return b.timestamp - a.timestamp;
+        });
+        
+        // 获取优先级最高的设置
+        const topSetting = matchedSettings[0];
+        
+        // 使用优先级最高的设置
+        tabTitleInput.value = topSetting.newTitle;
+        
+        // 初始化URL匹配规则UI，使用匹配的规则和URL
+        initUrlMatcher(activeTab.url, topSetting, topSetting.savedUrl);
+      } else if (history[activeTab.url]) {
+        // 如果当前URL有保存的设置，使用它
         tabTitleInput.value = history[activeTab.url].newTitle;
+        
+        // 初始化URL匹配规则UI
+        initUrlMatcher(activeTab.url, history[activeTab.url]);
       } else {
+        // 否则使用默认值
         tabTitleInput.value = activeTab.title;
+        
+        // 初始化URL匹配规则UI（使用默认值）
+        initUrlMatcher(activeTab.url);
       }
     });
   });
+  
+  /**
+   * 初始化URL匹配规则UI
+   * @param {string} currentUrl 当前URL
+   * @param {Object} historyItem 历史记录项
+   * @param {string} matchedUrl 匹配的URL（如果有）
+   */
+  function initUrlMatcher(currentUrl, historyItem, matchedUrl) {
+    // 初始状态
+    const initialState = {
+      matchRule: historyItem ? historyItem.matchRule || MATCH_RULES.EQUALS : MATCH_RULES.EQUALS,
+      customUrl: historyItem ? historyItem.customUrl || (matchedUrl || currentUrl) : currentUrl,
+      expanded: false,
+      isMatched: !!matchedUrl && matchedUrl !== currentUrl,
+      currentUrl: currentUrl
+    };
+    
+    // 创建URL匹配规则UI
+    urlMatcher = createUrlMatcherUI(urlMatcherContainer, initialState, function(state) {
+      // 状态变更回调
+      console.log('URL匹配规则状态变更:', state);
+    });
+  }
+  
+  /**
+   * 检查URL是否匹配
+   * @param {string} currentUrl 当前URL
+   * @param {string} targetUrl 目标URL
+   * @param {string} matchRule 匹配规则
+   * @returns {boolean} 是否匹配
+   */
+  function isUrlMatched(currentUrl, targetUrl, matchRule) {
+    if (!currentUrl || !targetUrl) {
+      return false;
+    }
+    
+    switch (matchRule) {
+      case MATCH_RULES.STARTS_WITH:
+        return currentUrl.startsWith(targetUrl);
+      case MATCH_RULES.ENDS_WITH:
+        return currentUrl.endsWith(targetUrl);
+      case MATCH_RULES.CONTAINS:
+        return currentUrl.includes(targetUrl);
+      case MATCH_RULES.EQUALS:
+      default:
+        return currentUrl === targetUrl;
+    }
+  }
 
   // 表单提交处理
   renameForm.addEventListener("submit", async function(event) {
     event.preventDefault();
     
-    const newTitle = tabTitleInput.value.trim();
+    const tabTitle = tabTitleInput.value.trim();
     
-    // 添加空值检查
-    if (!newTitle) {
-      showMessage('emptyInput', true);
+    if (tabTitle === "") {
+      // 如果标题为空，显示错误提示
+      showMessage(chrome.i18n.getMessage("titleEmptyError"), "error");
       return;
     }
     
-    try {
-        const tabs = await chrome.tabs.query({active: true, currentWindow: true});
-        const activeTab = tabs[0];
-        
-        // 检查是否是受保护的页面
-        if (isProtectedPage(activeTab.url)) {
-            showMessage('protectedPageError', true);
-            return;
+    // 获取当前标签信息
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    const activeTab = tabs[0];
+    
+    // 获取URL匹配规则状态
+    const urlMatcherState = urlMatcher.getState();
+    const matchRule = urlMatcherState.matchRule;
+    const customUrl = urlMatcherState.customUrl.trim();
+    
+    // 保存到历史记录
+    chrome.storage.local.get(['tabHistory'], function(result) {
+      const history = result.tabHistory || {};
+      
+      // 检查是否匹配当前URL
+      const isMatch = isUrlMatched(activeTab.url, customUrl, matchRule);
+      
+      // 保存设置
+      history[activeTab.url] = {
+        newTitle: tabTitle,
+        matchRule: matchRule,
+        customUrl: customUrl,
+        timestamp: Date.now() // 添加时间戳
+      };
+      
+      chrome.storage.local.set({ tabHistory: history }, function() {
+        if (isMatch) {
+          // 如果匹配，应用设置
+          chrome.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            func: (title) => { document.title = title; },
+            args: [tabTitle]
+          }).then(() => {
+            showMessage(chrome.i18n.getMessage("saveSuccess"), "success");
+          }).catch(error => {
+            showMessage(chrome.i18n.getMessage("generalError"), "error");
+          });
+        } else {
+          // 如果不匹配，显示提示
+          showMessage(chrome.i18n.getMessage("urlNotMatch"), "info");
         }
-        
-        // 获取当前选中的 emoji（如果有的话）
-        const emojiFavicon = document.querySelector('.emoji-favicon');
-        const emoji = emojiFavicon ? emojiFavicon.textContent : null;
-
-        // 先尝试更新标题
-        try {
-            await chrome.scripting.executeScript({
-                target: { tabId: activeTab.id },
-                func: (title) => {
-                    // 保存原始标题
-                    if (!document.querySelector('title').hasAttribute('data-original-title')) {
-                        document.querySelector('title').setAttribute('data-original-title', document.title);
-                    }
-                    document.title = title;
-                },
-                args: [newTitle]
-            });
-
-            // 如果有 emoji，更新 favicon
-            if (emoji) {
-                await chrome.scripting.executeScript({
-                    target: { tabId: activeTab.id },
-                    func: (emojiChar) => {
-                        // 保存原始 favicon
-                        const originalFavicon = document.querySelector('link[rel*="icon"]');
-                        if (originalFavicon && !document.querySelector('link[data-original-favicon="true"]')) {
-                            const original = originalFavicon.cloneNode(true);
-                            original.setAttribute('data-original-favicon', 'true');
-                            original.setAttribute('rel', 'original-favicon');
-                            document.head.appendChild(original);
-                        }
-
-                        const canvas = document.createElement('canvas');
-                        canvas.width = 32;
-                        canvas.height = 32;
-                        const ctx = canvas.getContext('2d');
-                        
-                        // 检测操作系统
-                        const isWindows = navigator.userAgent.toLowerCase().includes('windows');
-                        const yPosition = isWindows ? 18 : 20;
-                        
-                        ctx.font = '32px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        
-                        ctx.fillText(emojiChar, 16, yPosition);
-                        
-                        const link = document.createElement('link');
-                        link.rel = 'icon';
-                        link.href = canvas.toDataURL();
-                        
-                        // 移除所有现有的 favicon（除了原始的）
-                        document.querySelectorAll('link[rel*="icon"]:not([data-original-favicon="true"])').forEach(el => el.remove());
-                        
-                        // 添加新的 favicon
-                        document.head.appendChild(link);
-
-                        // 防止网站自动恢复 favicon
-                        const observer = new MutationObserver((mutations) => {
-                            mutations.forEach((mutation) => {
-                                if (mutation.type === 'childList') {
-                                    mutation.addedNodes.forEach((node) => {
-                                        if (node.tagName === 'LINK' && 
-                                            (node.rel === 'icon' || node.rel === 'shortcut icon') && 
-                                            !node.hasAttribute('data-original-favicon') &&
-                                            node !== link) {
-                                            node.remove();
-                                        }
-                                    });
-                                }
-                            });
-                        });
-
-                        observer.observe(document.head, {
-                            childList: true,
-                            subtree: true
-                        });
-
-                        // 在标签页关闭或导航离开时
-                        observer.disconnect();
-                    },
-                    args: [emoji]
-                });
-            }
-
-            // 只有在成功执行后才保存到存储
-            chrome.storage.local.get(['tabHistory', 'faviconHistory'], async function(result) {
-                const tabHistory = result.tabHistory || {};
-                const faviconHistory = result.faviconHistory || {};
-                
-                // 获取原始状态
-                const originalState = await getOriginalState(activeTab.url);
-                
-                // 更新标题历史
-                if (!tabHistory[activeTab.url]) {
-                    // 首次保存，记录完整信息
-                    tabHistory[activeTab.url] = {
-                        originalTitle: originalState.originalTitle,
-                        originalFaviconUrl: originalState.originalFaviconUrl,
-                        newTitle: newTitle,
-                        url: activeTab.url
-                    };
-                } else {
-                    // 已存在记录，只更新新标题
-                    tabHistory[activeTab.url].newTitle = newTitle;
-                }
-                
-                // 如果有选择 emoji，更新 favicon 历史
-                if (emoji) {
-                    faviconHistory[activeTab.url] = {
-                        emoji: emoji,
-                        url: activeTab.url,
-                        timestamp: new Date().getTime()
-                    };
-                }
-                
-                // 保存到 storage
-                chrome.storage.local.set({
-                    tabHistory: tabHistory,
-                    faviconHistory: faviconHistory
-                }, function() {
-                    // 通知 background 脚本更新已完成
-                    chrome.runtime.sendMessage({
-                        type: 'faviconUpdated',
-                        url: activeTab.url,
-                        emoji: emoji
-                    });
-
-                    showMessage('renameSuccess');
-                });
-            });
-
-        } catch (error) {
-            console.error('执行脚本失败:', error);
-            showMessage('renameFailed', true);
-        }
-    } catch (error) {
-        console.error('操作失败:', error);
-        showMessage('executionError', true);
+      });
+    });
+    
+    // 保存 favicon
+    if (selectedEmoji) {
+      chrome.storage.local.get(['faviconHistory'], function(result) {
+        const faviconHistory = result.faviconHistory || {};
+        faviconHistory[activeTab.url] = { emoji: selectedEmoji };
+        chrome.storage.local.set({ faviconHistory: faviconHistory });
+      });
     }
   });
+  
+  /**
+   * 检查URL是否匹配
+   * @param {string} currentUrl 当前URL
+   * @param {string} targetUrl 目标URL
+   * @param {string} matchRule 匹配规则
+   * @returns {boolean} 是否匹配
+   */
+  function isUrlMatch(currentUrl, targetUrl, matchRule) {
+    if (!currentUrl || !targetUrl) {
+      return false;
+    }
+    
+    switch (matchRule) {
+      case MATCH_RULES.STARTS_WITH:
+        return currentUrl.startsWith(targetUrl);
+      case MATCH_RULES.ENDS_WITH:
+        return currentUrl.endsWith(targetUrl);
+      case MATCH_RULES.CONTAINS:
+        return currentUrl.includes(targetUrl);
+      case MATCH_RULES.EQUALS:
+      default:
+        return currentUrl === targetUrl;
+    }
+  }
+  
+  /**
+   * 保存设置到存储
+   * @param {Object} activeTab 当前标签页
+   * @param {string} newTitle 新标题
+   * @param {string} emoji Emoji图标
+   * @param {Object} matcherState URL匹配规则状态
+   */
+  async function saveSettings(activeTab, newTitle, emoji, matcherState) {
+    // 获取原始状态
+    const originalState = await getOriginalState(activeTab.url);
+    
+    // 保存到存储
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(['tabHistory', 'faviconHistory'], async function(result) {
+        try {
+          const tabHistory = result.tabHistory || {};
+          const faviconHistory = result.faviconHistory || {};
+          
+          // 更新标题历史
+          if (!tabHistory[activeTab.url]) {
+            // 首次保存，记录完整信息
+            tabHistory[activeTab.url] = {
+              originalTitle: originalState.originalTitle,
+              originalFaviconUrl: originalState.originalFaviconUrl,
+              newTitle: newTitle,
+              url: activeTab.url,
+              matchRule: matcherState.matchRule || 'equals',
+              customUrl: matcherState.customUrl || activeTab.url
+            };
+          } else {
+            // 已存在记录，更新信息
+            tabHistory[activeTab.url].newTitle = newTitle;
+            tabHistory[activeTab.url].matchRule = matcherState.matchRule;
+            tabHistory[activeTab.url].customUrl = matcherState.customUrl;
+          }
+          
+          // 如果有选择 emoji，更新 favicon 历史
+          if (emoji) {
+            faviconHistory[activeTab.url] = {
+              emoji: emoji,
+              url: activeTab.url,
+              timestamp: Date.now()
+            };
+            
+            // 添加到常用表情
+            addToFrequentlyUsed(emoji);
+          }
+          
+          // 保存到存储
+          chrome.storage.local.set({
+            tabHistory: tabHistory,
+            faviconHistory: faviconHistory
+          }, function() {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else {
+              resolve();
+            }
+          });
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  }
 
   // 清除按钮事件
   document.getElementById('clearBtn').addEventListener('click', function() {
@@ -327,11 +437,8 @@ function initFaviconFeature() {
         
         // 重置搜索模式
         if (isInSearchMode()) {
-          clearSearch(searchInput, emojiContent);
+          clearSearch(document.querySelector('.search-input'), emojiContent);
         }
-        
-        // 关键修改：强制重置初始化状态，确保每次都重新渲染
-        emojiContent.removeAttribute('data-initialized');
         
         // 直接加载表情，不使用requestAnimationFrame
         showEmojiCategory('frequently');
@@ -421,7 +528,6 @@ function initFaviconFeature() {
       }
     }
     
-    // 关键修改：每次都重新渲染所有表情，确保内容始终存在
     // 清空现有内容，重新创建
     emojiContent.innerHTML = '';
     
@@ -466,9 +572,6 @@ function initFaviconFeature() {
             block: 'start'
         });
     }
-    
-    // 设置初始化标志
-    emojiContent.setAttribute('data-initialized', 'true');
   }
 
   // 使用事件委托处理 emoji 点击
@@ -491,6 +594,9 @@ function initFaviconFeature() {
     emojiFavicon.textContent = emoji;
     faviconBox.appendChild(emojiFavicon);
 
+    // 设置全局变量
+    selectedEmoji = emoji;
+    
     // 添加到常用表情
     addToFrequentlyUsed(emoji);
     
@@ -538,10 +644,10 @@ function initFaviconFeature() {
       // 立即显示对应分类，不使用滚动动画
       const selectedCategory = emojiContent.querySelector(`[data-category="${categoryName}"]`);
       if (selectedCategory) {
-        // 使用 scrollIntoView 方法，直接定位到目标位置，不使用平滑滚动
+        // 使用 scrollIntoView 方法，直接定位到目标位置，不使用动画
         selectedCategory.scrollIntoView({
-            behavior: 'instant', // 改为 'instant' 以立即滚动，不使用动画
-            block: 'start'    // 确保元素顶部与容器顶部对齐
+            behavior: 'instant', 
+            block: 'start'    
         });
       }
       
@@ -687,7 +793,9 @@ async function getOriginalState(url) {
     if (tabHistory[url]) {
         return {
             originalTitle: tabHistory[url].originalTitle,
-            originalFaviconUrl: tabHistory[url].originalFaviconUrl
+            originalFaviconUrl: tabHistory[url].originalFaviconUrl,
+            matchRule: tabHistory[url].matchRule || 'equals',
+            customUrl: tabHistory[url].customUrl || url
         };
     }
     
@@ -717,12 +825,16 @@ async function getOriginalState(url) {
 
         return {
             originalTitle: titleResult.result,
-            originalFaviconUrl: faviconResult.result || activeTab.favIconUrl
+            originalFaviconUrl: faviconResult.result || activeTab.favIconUrl,
+            matchRule: 'equals',
+            customUrl: url
         };
     } catch (error) {
         return {
             originalTitle: activeTab.title,
-            originalFaviconUrl: activeTab.favIconUrl
+            originalFaviconUrl: activeTab.favIconUrl,
+            matchRule: 'equals',
+            customUrl: url
         };
     }
 }

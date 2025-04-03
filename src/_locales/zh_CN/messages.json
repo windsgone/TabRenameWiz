@@ -32,6 +32,9 @@
     "url": {
       "message": "网址"
     },
+    "matchRule": {
+      "message": "匹配规则"
+    },
     "actions": {
       "message": "操作"
     },
@@ -51,10 +54,10 @@
       "message": "重命名成功"
     },
     "renameFailed": {
-      "message": "重命名失败，该页面可能无法修改标题"
+        "message": "重命名失败"
     },
     "protectedPageError": {
-      "message": "无法修改浏览器的系统页面标题"
+        "message": "无法修改浏览器保护页面"
     },
     "executionError": {
       "message": "重命名操作执行失败，请重试"
@@ -94,5 +97,44 @@
     },
     "emoji_category_frequently": {
       "message": "常用表情"
+    },
+    "matchRuleEquals": {
+        "message": "等于"
+    },
+    "matchRuleStartsWith": {
+        "message": "开头等于"
+    },
+    "matchRuleEndsWith": {
+        "message": "结尾等于"
+    },
+    "matchRuleContains": {
+        "message": "包含"
+    },
+    "urlMatchRuleTitle": {
+        "message": "网址"
+    },
+    "urlMatchRuleExpand": {
+        "message": "编辑规则"
+    },
+    "urlMatchRuleCollapse": {
+        "message": "收起"
+    },
+    "urlMatchRuleCondition": {
+        "message": "条件"
+    },
+    "urlMatchRuleAddress": {
+        "message": "网址地址"
+    },
+    "urlNotMatch": {
+        "message": "设置已保存。当URL匹配规则时，更改将会应用。"
+    },
+    "saveSuccess": {
+        "message": "设置保存成功"
+    },
+    "generalError": {
+        "message": "发生错误"
+    },
+    "rulePriorityInfo": {
+        "message": "优先级: 完全匹配 > 开头匹配 > 结尾匹配 > 包含匹配"
     }
-  }
+}

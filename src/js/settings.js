@@ -1,10 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     try {
         // 初始化 i18n
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const message = element.getAttribute('data-i18n');
-            element.textContent = chrome.i18n.getMessage(message);
-        });
+        initI18n();
         
         // 设置页面标题
         document.title = chrome.i18n.getMessage('settingsTitle');
@@ -14,6 +11,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('初始化页面时发生错误:', error);
     }
 });
+
+/**
+ * 初始化i18n文本
+ */
+function initI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const message = element.getAttribute('data-i18n');
+        element.textContent = chrome.i18n.getMessage(message);
+    });
+}
 
 function loadHistory() {
     chrome.storage.local.get(['tabHistory', 'faviconHistory'], function(result) {
@@ -38,6 +45,9 @@ function loadHistory() {
             
             attachDeleteHandlers();
             
+            // 重新初始化i18n，确保新添加的元素也能显示正确的多语言文本
+            initI18n();
+            
         } catch (error) {
         }
     });
@@ -59,6 +69,12 @@ function createTableRow(url, item, index, faviconData) {
         newFavicon.innerHTML = `<div class="emoji-favicon">${faviconData.emoji}</div>`;
     }
 
+    // 获取匹配规则文本
+    const matchRuleText = getMatchRuleText(item.matchRule || 'equals');
+    
+    // 使用自定义URL或原始URL
+    const displayUrl = item.customUrl || url;
+
     const deleteButton = document.createElement('button');
     deleteButton.className = 'delete-btn';
     deleteButton.setAttribute('data-url', url);
@@ -70,7 +86,8 @@ function createTableRow(url, item, index, faviconData) {
         <td>${item.newTitle || ''}</td>
         <td class="favicon-cell"></td>
         <td class="favicon-cell"></td>
-        <td>${url}</td>
+        <td><span class="match-rule">${matchRuleText}</span></td>
+        <td>${displayUrl}</td>
         <td></td>
     `;
 
@@ -79,6 +96,23 @@ function createTableRow(url, item, index, faviconData) {
     row.querySelector('td:last-child').appendChild(deleteButton);
     
     return row;
+}
+
+/**
+ * 获取匹配规则的显示文本
+ * @param {string} rule 匹配规则
+ * @returns {string} 匹配规则的显示文本
+ */
+function getMatchRuleText(rule) {
+    const ruleKeys = {
+        'equals': 'matchRuleEquals',
+        'startsWith': 'matchRuleStartsWith',
+        'endsWith': 'matchRuleEndsWith',
+        'contains': 'matchRuleContains'
+    };
+    
+    const key = ruleKeys[rule] || ruleKeys['equals'];
+    return chrome.i18n.getMessage(key);
 }
 
 function attachDeleteHandlers() {
